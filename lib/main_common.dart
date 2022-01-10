@@ -24,10 +24,13 @@ Future<void> mainCommon(FlavorConfig config) async {
   Get.put(GameRoomController());
 
   final GameRoomController gameRoomController = GameRoomController.to;
-  await gameRoomController.getGameRoom();
-  await gameRoomController.triggerStartGame();
-  
-  
+  // if (authenticationController.user.value.userName.isEmpty) {
+  //   return;
+  // } else {
+    await gameRoomController.triggerStartGame();
+    await gameRoomController.getAllGameRoom();
+  // }
+
   runApp(
     MyApp(),
   );

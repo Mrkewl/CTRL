@@ -89,12 +89,12 @@ class ParticipantCard extends StatelessWidget {
                               style: const TextStyle(
                                   color: ColorPalette.snow, fontSize: 14),
                             ),
-                            // if(!gameController.gameStart.value)
-                            // ...[Text(
-                            //   'Missed: $missedWorkout',
-                            //   style: const TextStyle(
-                            //       color: ColorPalette.snow, fontSize: 14),
-                            // ),
+                            if(!gameController.gameStart.value)
+                            ...[Text(
+                              'Missed: $missedWorkout',
+                              style: const TextStyle(
+                                  color: ColorPalette.snow, fontSize: 14),
+                            ),
                             // Text(
                             //   'Total Amount Earned: $earned',
                             //   style: const TextStyle(
@@ -107,7 +107,7 @@ class ParticipantCard extends StatelessWidget {
                             //   Icon(Icons.lightbulb)
                             //     ],
                             //   )
-                            // ]
+                            ]
                           ],
                         ),
                       ),

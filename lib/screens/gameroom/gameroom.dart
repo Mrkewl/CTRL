@@ -69,10 +69,21 @@ class GameRoom extends StatelessWidget {
                 ),
               ),
               IconButton(
-                onPressed: () {
-                  gameRoomController.workoutCheckin(
-                      gameRoom, authenticationController.user.value);
-                      //  gameRoomController.checkMissedWorkout();
+                onPressed: ()async {
+                  // gameRoomController.participateInGame(
+                      // gameRoom: gameRoom,
+                      // user: authenticationController.user.value,
+                      // context: context);
+                  // gameRoomController.workoutCheckin(
+                  //     gameRoom, authenticationController.user.value);
+                  //  gameRoomController.checkMissedWorkout();
+                  // gameRoomController.individuallossAmountPerWeek();
+                  // print(await gameRoomController.getTotalAmountLossAtEndWeek(gameRoom));
+                  // print(await gameRoomController.totalAmountOfUnits(gameRoom));
+                // print(gameRoomController.getListEachParticipantAmountLossAtEndWeek());
+                gameRoomController.controllerSetUp();
+                  // gameRoomController.updatePotAmount(gameRoom);
+                //  gameRoomController.updateDocumentInStorage();
                 },
                 icon: Icon(Icons.ac_unit),
               ),
@@ -121,9 +132,11 @@ class GameRoom extends StatelessWidget {
                         itemCount: gameRoom.participants!.length,
                         shrinkWrap: true,
                         itemBuilder: (context, index) => ParticipantCard(
-                          avatarImage: gameRoom.participants![index].photoUrl,
+                            avatarImage: gameRoom.participants![index].photoUrl,
                             name: gameRoom.participants![index].userName,
-                            missedWorkout: 0.toString(),
+                            missedWorkout: gameRoom
+                                .participants![index].totalMissedWorkout
+                                .toString(),
                             totalAmount: 0.toString(),
                             earned: gameRoom
                                 .participants![index].currentAmountEarned

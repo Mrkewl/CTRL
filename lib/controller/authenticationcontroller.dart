@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ctrl_app/common/helper/helper.dart';
+import 'package:ctrl_app/models/gameroom_model.dart';
+import 'package:ctrl_app/models/gameweek_model.dart';
+import 'package:ctrl_app/models/participant_model.dart';
 import 'package:ctrl_app/models/user_model.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -271,6 +274,7 @@ class AuthenticationController extends GetxController {
       log(e.toString());
     }
   }
+
   ///TODO The commitment per week did not get set up
 
   Future<void> changeMissionStatement() async {
@@ -290,7 +294,7 @@ class AuthenticationController extends GetxController {
           topUp;
       currentBalance.value = totalAmount.toString();
       await usersData.doc(FirebaseAuth.instance.currentUser!.email).set({
-        'wallet_balance': currentBalance.value,
+        'walletAmount': currentBalance.value,
       }, SetOptions(merge: true));
     } catch (e) {
       log(e.toString());
@@ -322,5 +326,75 @@ class AuthenticationController extends GetxController {
     } else {
       return user.value.avatarImage;
     }
+  }
+
+  int totalCompletedWorkout(List<GameRoomModel> gameRooms) {
+    int totalGamesCompletedWorkout = 0;
+    for (final GameRoomModel gameRoom in gameRooms) {
+      final ParticipantModel currentUser = gameRoom.participants!
+          .firstWhere((element) => element.email == user.value.email);
+      for (final GameWeekModel gameWeek in currentUser.gameWeekModel) {
+        totalGamesCompletedWorkout =
+            totalGamesCompletedWorkout + gameWeek.workoutDays.length;
+      }
+    }
+    return totalGamesCompletedWorkout;
+  }
+
+  double totalEarnings(List<GameRoomModel> gameRooms) {
+    double totalGamesEarnings = 0;
+    for (final GameRoomModel gameRoom in gameRooms) {
+      final ParticipantModel currentUser = gameRoom.participants!
+          .firstWhere((element) => element.email == user.value.email);
+      for (final GameWeekModel gameWeek in currentUser.gameWeekModel) {
+        totalGamesEarnings = totalGamesEarnings + gameWeek.earnedThisweek;
+      }
+    }
+    return totalGamesEarnings;
+  }
+
+  int totalGamesParticipated(List<GameRoomModel> gameRooms) {
+    int totalGamesUserParticipated = 0;
+    for (final GameRoomModel gameRoom in gameRooms) {
+      for (final ParticipantModel participant in gameRoom.participants!) {
+        if (participant.email == user.value.email) {
+          totalGamesUserParticipated++;
+        }
+      }
+    }
+    return totalGamesUserParticipated;
+  }
+
+  int totalGamesParticipating(List<GameRoomModel> gameRooms) {
+    int totalGamesUserParticipating = 0;
+    for (final GameRoomModel gameRoom in gameRooms) {
+      if (DateFormat("dd MMM yyyy")
+          .parse(gameRoom.endDate!)
+          .isAfter(DateTime.now())) {
+        for (final ParticipantModel participant in gameRoom.participants!) {
+          if (participant.email == user.value.email) {
+            totalGamesUserParticipating++;
+          }
+        }
+      }
+    }
+    return totalGamesUserParticipating;
+  }
+
+  double totalMissedWorkout(List<GameRoomModel> gameRooms) {
+    double totalMissedWorkoutsInGame = 0;
+    for (final GameRoomModel gameRoom in gameRooms) {
+      final ParticipantModel currentUser = gameRoom.participants!
+          .firstWhere((element) => element.email == user.value.email);
+      for (final GameWeekModel gameWeek in currentUser.gameWeekModel) {
+        totalMissedWorkoutsInGame =
+            totalMissedWorkoutsInGame + gameWeek.missedWorkoutThisWeek;
+      }
+    }
+    return totalMissedWorkoutsInGame;
+  }
+
+  double deductWalletAmout(double entryFee) {
+    return user.value.walletAmount = user.value.walletAmount - entryFee;
   }
 }

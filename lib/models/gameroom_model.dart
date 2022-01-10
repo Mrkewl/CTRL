@@ -30,6 +30,7 @@ class GameRoomModel {
   int? roomLimit;
   String? documentId;
   int? commitmentPeriod;
+ 
 
   GameRoomModel copyWith({
     String? name,
@@ -64,7 +65,6 @@ class GameRoomModel {
     return {
       'name': name,
       'id': id,
-      'participants': participants?.map((x) => x.toMap()).toList(),
       'potAmount': potAmount,
       'buyInAmount': buyInAmount,
       'started': started,
@@ -73,7 +73,8 @@ class GameRoomModel {
       'commitmentPeriod': commitmentPeriod,
       'gameCreatorEmail': gameCreatorEmail,
       'roomLimit': roomLimit,
-      'documentId': documentId
+      'documentId': documentId,
+      'participants': participants?.map((x) => x.toMap()).toList(),
     };
   }
 
@@ -82,10 +83,6 @@ class GameRoomModel {
     return GameRoomModel(
       name: map['name'],
       id: map['id'],
-      participants: map['participants'] != null
-          ? List<ParticipantModel>.from(
-              map['participants']?.map((x) => ParticipantModel.fromMap(x)))
-          : null,
       potAmount: map['potAmount']?.toDouble(),
       buyInAmount: map['buyInAmount']?.toDouble(),
       started: map['started'],
@@ -95,6 +92,10 @@ class GameRoomModel {
       gameCreatorEmail: map['gameCreatorEmail'] ?? '',
       roomLimit: map['roomLimit'] ?? 0,
       documentId : map['documentId'] ?? '',
+      participants: map['participants'] != null
+          ? List<ParticipantModel>.from(
+              map['participants']?.map((x) => ParticipantModel.fromMap(x)))
+          : null,
     );
   }
 

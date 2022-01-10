@@ -9,9 +9,9 @@ import 'gameweek_model.dart';
 class ParticipantModel {
   final String email;
   final int commitmentAmountPerWeek;
-  final double currentAmountHolding;
-  final double currentAmountEarned;
-  final double currentAmountLost;
+   double? currentAmountHolding;
+   double? currentAmountEarned;
+   double? currentAmountLost;
   final int commitmentAmountInChallenge;
   final String userName;
   final String photoUrl;
@@ -29,6 +29,15 @@ class ParticipantModel {
     required this.gameWeekModel,
     required this.lostAmountPerUnit,
   });
+
+  int get totalMissedWorkout {
+    int acumulatedMissedWorkout = 0;
+    for (final GameWeekModel gameWeek in gameWeekModel) {
+      acumulatedMissedWorkout =
+          acumulatedMissedWorkout + gameWeek.missedWorkoutThisWeek;
+    }
+    return acumulatedMissedWorkout;
+  }
 
   ParticipantModel copyWith({
     String? email,
@@ -75,9 +84,9 @@ class ParticipantModel {
     return ParticipantModel(
       email: map['email'] ?? '',
       commitmentAmountPerWeek: map['commitmentAmountPerWeek']?.toInt() ?? 0,
-      currentAmountHolding: map['currentAmountHolding']?.toDouble() ?? 0.0,
-      currentAmountEarned: map['currentAmountEarned']?.toDouble() ?? 0.0,
-      currentAmountLost: map['currentAmountLost']?.toDouble() ?? 0.0,
+      currentAmountHolding: map['currentAmountHolding']?.toDouble(),
+      currentAmountEarned: map['currentAmountEarned']?.toDouble(),
+      currentAmountLost: map['currentAmountLost']?.toDouble(),
       commitmentAmountInChallenge: map['commitmentAmountInChallenge']?.toInt() ?? 0,
       userName: map['userName'] ?? '',
       photoUrl: map['photoUrl'] ?? '',
@@ -99,31 +108,31 @@ class ParticipantModel {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is ParticipantModel &&
-      other.email == email &&
-      other.commitmentAmountPerWeek == commitmentAmountPerWeek &&
-      other.currentAmountHolding == currentAmountHolding &&
-      other.currentAmountEarned == currentAmountEarned &&
-      other.currentAmountLost == currentAmountLost &&
-      other.commitmentAmountInChallenge == commitmentAmountInChallenge &&
-      other.userName == userName &&
-      other.photoUrl == photoUrl &&
-      listEquals(other.gameWeekModel, gameWeekModel) &&
-      other.lostAmountPerUnit == lostAmountPerUnit;
+        other.email == email &&
+        other.commitmentAmountPerWeek == commitmentAmountPerWeek &&
+        other.currentAmountHolding == currentAmountHolding &&
+        other.currentAmountEarned == currentAmountEarned &&
+        other.currentAmountLost == currentAmountLost &&
+        other.commitmentAmountInChallenge == commitmentAmountInChallenge &&
+        other.userName == userName &&
+        other.photoUrl == photoUrl &&
+        listEquals(other.gameWeekModel, gameWeekModel) &&
+        other.lostAmountPerUnit == lostAmountPerUnit;
   }
 
   @override
   int get hashCode {
     return email.hashCode ^
-      commitmentAmountPerWeek.hashCode ^
-      currentAmountHolding.hashCode ^
-      currentAmountEarned.hashCode ^
-      currentAmountLost.hashCode ^
-      commitmentAmountInChallenge.hashCode ^
-      userName.hashCode ^
-      photoUrl.hashCode ^
-      gameWeekModel.hashCode ^
-      lostAmountPerUnit.hashCode;
+        commitmentAmountPerWeek.hashCode ^
+        currentAmountHolding.hashCode ^
+        currentAmountEarned.hashCode ^
+        currentAmountLost.hashCode ^
+        commitmentAmountInChallenge.hashCode ^
+        userName.hashCode ^
+        photoUrl.hashCode ^
+        gameWeekModel.hashCode ^
+        lostAmountPerUnit.hashCode;
   }
 }

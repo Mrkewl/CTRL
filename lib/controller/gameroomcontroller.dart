@@ -9,8 +9,11 @@ import 'package:ctrl_app/models/gameweek_model.dart';
 import 'package:ctrl_app/models/participant_model.dart';
 import 'package:ctrl_app/models/user_model.dart';
 import 'package:ctrl_app/models/workoutday_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:intl/intl.dart';
 
 class GameRoomController extends GetxController {
@@ -21,11 +24,24 @@ class GameRoomController extends GetxController {
   final AuthenticationController authenticationController =
       AuthenticationController.to;
   final RxString currentGameRoomId = ''.obs;
-
+  final RxList<GameRoomModel> participatingGameRoomList = <GameRoomModel>[].obs;
   CollectionReference gameRooms =
       FirebaseFirestore.instance.collection('gamerooms');
 
-  Future<void> getGameRoom() async {
+  Future<void> controllerSetUp(UserModel user) async {
+    await getAllGameRoom();
+    participatingGameRoomList.value = getParticipatingGameRooms(user);
+    await triggerStartGame();
+    await checkMissedWorkout();
+    await getListEachParticipantAmountLossAtEndWeek();
+    await distributeLostAmountToParticipants();
+    await getTotalAmountEarnedInGame();
+    await getTotalAmountLostInGame();
+    await getCurrentAmountHolding();
+    await updateDocumentInStorage();
+  }
+
+  Future<void> getAllGameRoom() async {
     try {
       await gameRooms.get().then((QuerySnapshot querySnapshot) => {
             for (QueryDocumentSnapshot queryDocumentSnapshot
@@ -40,51 +56,174 @@ class GameRoomController extends GetxController {
     }
   }
 
+  List<GameRoomModel> getParticipatingGameRooms(UserModel user) {
+    final List<GameRoomModel> participatingGameRooms = [];
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      for (final ParticipantModel participant in gameRoom.participants!) {
+        if (participant.email == user.email) {
+          participatingGameRooms.add(gameRoom);
+        }
+      }
+    }
+    return participatingGameRooms;
+  }
+
+  Future<void> updateDocumentInStorage() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      gameRooms.doc(gameRoom.documentId).update(gameRoom.toMap());
+    }
+  }
+
   Future<void> triggerStartGame() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       if (weekCheck(
           startDate: gameRoom.startDate!, endDate: gameRoom.endDate!)) {
         if (gameRoom.started == false) {
           gameRoom.started = true;
-          gameRooms.doc(gameRoom.documentId).update({'started': true});
+        } else {
+          return;
         }
       }
     }
   }
 
-  Future<void> checkMissedWorkout() async {
-    print('hello');
-    for (final GameRoomModel gameRoom in gameRoomList) {
-      // print(gameRoom);
+  Future<void> updatePotAmount(GameRoomModel gameRoom) async {
+    final double totalPotAmount =
+        gameRoom.participants!.length * gameRoom.buyInAmount!;
+    gameRooms.doc(gameRoom.documentId).update({'potAmount': totalPotAmount});
+  }
 
+  Future<void> checkMissedWorkout() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
       for (final ParticipantModel participant in gameRoom.participants!) {
         for (final GameWeekModel gameWeek in participant.gameWeekModel) {
-          // print(gameWeek);
-          // print(DateFormat('dd-MM-yyyy')
-          //     .parse(gameWeek.endDate)
-          //     .isBefore(DateTime(2022, 1, 7)));
-
+          //TODO remove datetime and change to datetime now
           if (DateFormat('dd-MM-yyyy')
                   .parse(gameWeek.endDate)
-                  .isBefore(DateTime(2022, 1, 7)) ||
+                  .isBefore(DateTime(2022, 1, 14)) ||
               DateFormat('dd-MM-yyyy')
                   .parse(gameWeek.endDate)
-                  .isAtSameMomentAs(DateTime(2022, 1, 7))) {
+                  .isAtSameMomentAs(DateTime(2022, 1, 14))) {
             if (gameWeek.workoutDays.length <
                 participant.commitmentAmountPerWeek) {
               gameWeek.missedWorkoutThisWeek =
                   participant.commitmentAmountPerWeek -
                       gameWeek.workoutDays.length;
-              print(gameWeek.missedWorkoutThisWeek);
             } else if (gameWeek.workoutDays.length >=
                 participant.commitmentAmountPerWeek) {
-              gameWeek.missedWorkoutThisWeek == 0;
+              gameWeek.missedWorkoutThisWeek = 0;
               print(gameWeek.missedWorkoutThisWeek);
             } else {
               print('hello');
             }
           }
         }
+      }
+    }
+  }
+
+  //Get total amount of units
+  Future<int> totalAmountOfUnits(GameRoomModel gameRoom) async {
+    int totalUnits = 0;
+    for (final ParticipantModel participant in gameRoom.participants!) {
+      totalUnits = totalUnits + participant.commitmentAmountPerWeek;
+    }
+    return totalUnits;
+  }
+
+  //Get Total amount of loss for each participant in each week
+  Future<void> getListEachParticipantAmountLossAtEndWeek() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      for (final ParticipantModel participant in gameRoom.participants!) {
+        for (final GameWeekModel gameWeek in participant.gameWeekModel) {
+          gameWeek.lostThisWeek =
+              participant.lostAmountPerUnit * gameWeek.missedWorkoutThisWeek;
+        }
+      }
+    }
+  }
+
+  Future<void> getTotalAmountEarnedInGame() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      for (final ParticipantModel participant in gameRoom.participants!) {
+        participant.currentAmountEarned = 0;
+        for (final GameWeekModel gameWeek in participant.gameWeekModel) {
+          participant.currentAmountEarned =
+              participant.currentAmountEarned! + gameWeek.earnedThisweek;
+        }
+      }
+    }
+  }
+
+  Future<void> getTotalAmountLostInGame() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      for (final ParticipantModel participant in gameRoom.participants!) {
+        participant.currentAmountLost = 0;
+        for (final GameWeekModel gameWeek in participant.gameWeekModel) {
+          participant.currentAmountLost =
+              participant.currentAmountLost! + gameWeek.lostThisWeek;
+        }
+      }
+    }
+  }
+
+  Future<void> getCurrentAmountHolding() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      for (final ParticipantModel participant in gameRoom.participants!) {
+        participant.currentAmountHolding = gameRoom.buyInAmount;
+        participant.currentAmountHolding = participant.currentAmountHolding! +
+            participant.currentAmountEarned! -
+            participant.currentAmountLost!;
+      }
+    }
+  }
+
+  Future<void> distributeLostAmountToParticipants() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      await clearAllEarnedAmount(gameRoom);
+
+      ///TODO to write method to clear all earned this week first.
+      ///*This method will calculate all weeks for the game room to distribute
+      for (final ParticipantModel participant1 in gameRoom.participants!) {
+        int count = 0;
+        for (final GameWeekModel gameWeek in participant1.gameWeekModel) {
+          print('----------------');
+          print(participant1.email);
+          print('Loss this week');
+          print(gameWeek.lostThisWeek);
+          for (final ParticipantModel participant2 in gameRoom.participants!) {
+            if (participant1 != participant2) {
+              print(participant2.email);
+              final double formulationOfDistribution = gameWeek.lostThisWeek *
+                  participant2.commitmentAmountPerWeek /
+                  (await totalAmountOfUnits(gameRoom) -
+                      participant1.commitmentAmountPerWeek);
+              print('earned' + 'week:' + count.toString());
+              print(formulationOfDistribution);
+              participant2.gameWeekModel[count].earnedThisweek =
+                  participant2.gameWeekModel[count].earnedThisweek +
+                      formulationOfDistribution;
+            }
+          }
+          count++;
+        }
+      }
+    }
+  }
+
+  Future<void> clearAllEarnedAmount(GameRoomModel gameRoom) async {
+    for (final ParticipantModel participant in gameRoom.participants!) {
+      for (final GameWeekModel gameWeek in participant.gameWeekModel) {
+        gameWeek.earnedThisweek = 0;
+      }
+    }
+  }
+
+  Future<void> individuallossAmountPerWeek(GameRoomModel gameRoom) async {
+    for (final ParticipantModel participant in gameRoom.participants!) {
+      for (final GameWeekModel gameWeek in participant.gameWeekModel) {
+        print(gameWeek.lostThisWeek =
+            participant.lostAmountPerUnit * gameWeek.missedWorkoutThisWeek);
       }
     }
   }
@@ -125,7 +264,7 @@ class GameRoomController extends GetxController {
         await gameRooms.doc().set(createNewGameRoom.toMap());
         await retriveAndAddIdToCollection();
         gameRoomList.clear();
-        await getGameRoom();
+        await getAllGameRoom();
         createGame.value = CreateGame();
       } catch (e) {
         log(e.toString());
@@ -228,6 +367,7 @@ class GameRoomController extends GetxController {
     }
   }
 
+  /// Can put in Extension
   bool weekCheck({required String startDate, required String endDate}) {
     return DateFormat('dd-MM-yyyy').parse(startDate).isBefore(DateTime.now()) &&
         DateFormat('dd-MM-yyyy').parse(endDate).isAfter(DateTime.now());
@@ -239,6 +379,7 @@ class GameRoomController extends GetxController {
             DateFormat('dd-MM-yyyy').format(DateTime.now()).toString()));
   }
 
+//User to join game
   Future<void> participateInGame(
       {required GameRoomModel gameRoom,
       required UserModel user,
