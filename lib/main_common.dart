@@ -13,23 +13,16 @@ import 'screens/landing_page/landingpage_screen.dart';
 
 Future<void> mainCommon(FlavorConfig config) async {
   Get.put(HomeController());
-
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
   Get.put(AuthenticationController());
   final AuthenticationController authenticationController =
       AuthenticationController.to;
-  await authenticationController.getUserInfo();
   Get.put(GameRoomController());
-
   final GameRoomController gameRoomController = GameRoomController.to;
-  // if (authenticationController.user.value.userName.isEmpty) {
-  //   return;
-  // } else {
-    await gameRoomController.triggerStartGame();
-    await gameRoomController.getAllGameRoom();
-  // }
+  await gameRoomController.controllerSetUp(authenticationController.user.value);
+  await authenticationController
+      .setUpAuthController(gameRoomController.gameRoomList);
 
   runApp(
     MyApp(),

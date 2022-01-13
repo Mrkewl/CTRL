@@ -263,7 +263,7 @@ class AuthenticationController extends GetxController {
                             documentSnapshot.data()! as Map<String, dynamic>)
                         .obs
                   });
-          print(user.value);
+          log(user.value.toString());
         }
 
         await usersData.doc(FirebaseAuth.instance.currentUser!.email).set({
@@ -275,6 +275,21 @@ class AuthenticationController extends GetxController {
     }
   }
 
+  Future<void> setUpAuthController(List<GameRoomModel> gameRooms) async {
+    await getUserInfo();
+    user.value.totalCompletedWorkout = totalCompletedWorkout(gameRooms);
+    user.value.totalEarnings = totalEarnings(gameRooms);
+    user.value.totalGamesParticipated = totalGamesParticipated(gameRooms);
+    user.value.totalGamesParticipating = totalGamesParticipating(gameRooms);
+    user.value.totalMissedWorkout = totalMissedWorkout(gameRooms);
+    updateDocument();
+  }
+
+  Future<void> updateDocument() async {
+    await usersData.doc(FirebaseAuth.instance.currentUser!.email).set(
+      user.value.toMap()
+    , SetOptions(merge: true));
+  }
   ///TODO The commitment per week did not get set up
 
   Future<void> changeMissionStatement() async {
@@ -368,7 +383,8 @@ class AuthenticationController extends GetxController {
   int totalGamesParticipating(List<GameRoomModel> gameRooms) {
     int totalGamesUserParticipating = 0;
     for (final GameRoomModel gameRoom in gameRooms) {
-      if (DateFormat("dd MMM yyyy")
+  
+      if (DateFormat("dd-MM-yyyy")
           .parse(gameRoom.endDate!)
           .isAfter(DateTime.now())) {
         for (final ParticipantModel participant in gameRoom.participants!) {
@@ -381,8 +397,8 @@ class AuthenticationController extends GetxController {
     return totalGamesUserParticipating;
   }
 
-  double totalMissedWorkout(List<GameRoomModel> gameRooms) {
-    double totalMissedWorkoutsInGame = 0;
+  int totalMissedWorkout(List<GameRoomModel> gameRooms) {
+    int totalMissedWorkoutsInGame = 0;
     for (final GameRoomModel gameRoom in gameRooms) {
       final ParticipantModel currentUser = gameRoom.participants!
           .firstWhere((element) => element.email == user.value.email);

@@ -81,11 +81,11 @@ class GameRoom extends StatelessWidget {
                   // print(await gameRoomController.getTotalAmountLossAtEndWeek(gameRoom));
                   // print(await gameRoomController.totalAmountOfUnits(gameRoom));
                 // print(gameRoomController.getListEachParticipantAmountLossAtEndWeek());
-                gameRoomController.controllerSetUp();
+                gameRoomController.controllerSetUp(authenticationController.user.value);
                   // gameRoomController.updatePotAmount(gameRoom);
                 //  gameRoomController.updateDocumentInStorage();
                 },
-                icon: Icon(Icons.ac_unit),
+                icon: const Icon(Icons.ac_unit),
               ),
               if (gameRoom.started != true)
                 GameInformationBeforeStart(

@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class EditMissionTextBox extends StatelessWidget {
   EditMissionTextBox({

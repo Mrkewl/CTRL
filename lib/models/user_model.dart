@@ -135,7 +135,7 @@ class UserModel {
       missionStatement: map['missionStatement'],
       avatarImage: map['avatarImage'],
       totalCompletedWorkout: map['totalCompletedWorkout']?.toInt(),
-      walletAmount: map['walletAmount']?.toDouble(),
+      walletAmount:double.parse(map['walletAmount']??'0'),
       totalGamesParticipated: map['totalGamesParticipated']?.toInt(),
       totalMissedWorkout: map['totalMissedWorkout']?.toInt(),
       totalEarnings: map['totalEarnings']?.toDouble(),

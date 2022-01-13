@@ -9,7 +9,6 @@ import 'package:ctrl_app/models/gameweek_model.dart';
 import 'package:ctrl_app/models/participant_model.dart';
 import 'package:ctrl_app/models/user_model.dart';
 import 'package:ctrl_app/models/workoutday_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -100,10 +99,10 @@ class GameRoomController extends GetxController {
           //TODO remove datetime and change to datetime now
           if (DateFormat('dd-MM-yyyy')
                   .parse(gameWeek.endDate)
-                  .isBefore(DateTime(2022, 1, 14)) ||
+                  .isBefore(DateTime(2022, 1, 27)) ||
               DateFormat('dd-MM-yyyy')
                   .parse(gameWeek.endDate)
-                  .isAtSameMomentAs(DateTime(2022, 1, 14))) {
+                  .isAtSameMomentAs(DateTime(2022, 1, 27))) {
             if (gameWeek.workoutDays.length <
                 participant.commitmentAmountPerWeek) {
               gameWeek.missedWorkoutThisWeek =
@@ -112,9 +111,9 @@ class GameRoomController extends GetxController {
             } else if (gameWeek.workoutDays.length >=
                 participant.commitmentAmountPerWeek) {
               gameWeek.missedWorkoutThisWeek = 0;
-              print(gameWeek.missedWorkoutThisWeek);
+              log(gameWeek.missedWorkoutThisWeek.toString());
             } else {
-              print('hello');
+              log('hello');
             }
           }
         }
@@ -187,19 +186,19 @@ class GameRoomController extends GetxController {
       for (final ParticipantModel participant1 in gameRoom.participants!) {
         int count = 0;
         for (final GameWeekModel gameWeek in participant1.gameWeekModel) {
-          print('----------------');
-          print(participant1.email);
-          print('Loss this week');
-          print(gameWeek.lostThisWeek);
+          log('----------------');
+          log(participant1.email);
+          log('Loss this week');
+          log(gameWeek.lostThisWeek.toString());
           for (final ParticipantModel participant2 in gameRoom.participants!) {
             if (participant1 != participant2) {
-              print(participant2.email);
+              log(participant2.email);
               final double formulationOfDistribution = gameWeek.lostThisWeek *
                   participant2.commitmentAmountPerWeek /
                   (await totalAmountOfUnits(gameRoom) -
                       participant1.commitmentAmountPerWeek);
-              print('earned' + 'week:' + count.toString());
-              print(formulationOfDistribution);
+              log('earned' + 'week:' + count.toString());
+              log(formulationOfDistribution.toString());
               participant2.gameWeekModel[count].earnedThisweek =
                   participant2.gameWeekModel[count].earnedThisweek +
                       formulationOfDistribution;
@@ -222,8 +221,8 @@ class GameRoomController extends GetxController {
   Future<void> individuallossAmountPerWeek(GameRoomModel gameRoom) async {
     for (final ParticipantModel participant in gameRoom.participants!) {
       for (final GameWeekModel gameWeek in participant.gameWeekModel) {
-        print(gameWeek.lostThisWeek =
-            participant.lostAmountPerUnit * gameWeek.missedWorkoutThisWeek);
+        log((gameWeek.lostThisWeek =
+            participant.lostAmountPerUnit * gameWeek.missedWorkoutThisWeek).toString());
       }
     }
   }
@@ -335,7 +334,7 @@ class GameRoomController extends GetxController {
     ///*This is to check which participant
     final int participantIndex = gameRoom.participants!
         .indexWhere((element) => element.email == user.email);
-    print(participantIndex);
+    log(participantIndex.toString());
 
     ///*This is to check which week
     for (final GameWeekModel gameWeek
@@ -343,7 +342,7 @@ class GameRoomController extends GetxController {
       if (weekCheck(startDate: gameWeek.startDate, endDate: gameWeek.endDate)) {
         ///*This is to check if user has worked out today
         if (workoutCheckInToday(gameWeek.workoutDays)) {
-          print('You have already worked out today');
+          log('You have already worked out today');
         } else if (!workoutCheckInToday(gameWeek.workoutDays)) {
           ///* Get the index of the game week to check
           final int gameWeekIndex = gameRoom
@@ -360,7 +359,7 @@ class GameRoomController extends GetxController {
           gameRooms
               .doc(gameRoom.documentId)
               .set(gameRoom.toMap(), SetOptions(merge: true));
-          print('Workout has been added');
+          log('Workout has been added');
         }
         return;
       }
@@ -400,7 +399,7 @@ class GameRoomController extends GetxController {
                   playerCommitment * gameRoom.commitmentPeriod!,
               commitmentAmountPerWeek: playerCommitment,
               currentAmountEarned: 0,
-              currentAmountHolding: gameRoom.buyInAmount!,
+              currentAmountHolding: gameRoom.buyInAmount,
               currentAmountLost: 0,
               email: user.email,
               photoUrl:

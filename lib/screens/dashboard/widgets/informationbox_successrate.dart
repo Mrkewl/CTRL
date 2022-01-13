@@ -88,7 +88,7 @@ class InformationBoxSuccessRate extends StatelessWidget {
                       Padding(
                     padding: const EdgeInsets.only(left: 12.0),
                     child: Text(
-                      successRate.isNaN? 'Not Started' : successRate.toString(),
+                      successRate.isNaN? 'Not Started' : '${(successRate*100).toStringAsFixed(2)}%',
                       style:const TextStyle(color: ColorPalette.snow, fontSize: 22),
                     ),
                   ),
