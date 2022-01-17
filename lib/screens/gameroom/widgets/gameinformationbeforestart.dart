@@ -96,6 +96,7 @@ class GameInformationBeforeStart extends StatelessWidget {
                   },
                   child: const GameButton(
                     header: 'Join Game',
+                    color: ColorPalette.brightGreen,
                   ),
                 ),
                 const SizedBox(
@@ -113,6 +114,7 @@ class GameInformationBeforeStart extends StatelessWidget {
                   },
                   child: const GameButton(
                     header: 'Invite',
+                    color: ColorPalette.brightGreen,
                   ),
                 )
               ],

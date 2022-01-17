@@ -4,6 +4,7 @@ import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/common/widgets/landingpage_button_widget.dart';
 import 'package:ctrl_app/common/widgets/registrationtextfield_widget.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
+import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/screens/home/home.dart';
 import 'package:ctrl_app/screens/registration/widgets/applechip_widget.dart';
 import 'package:ctrl_app/screens/registration/widgets/googlechip_widget.dart';
@@ -14,6 +15,7 @@ class SignIn extends StatelessWidget {
   SignIn({Key? key}) : super(key: key);
   final AuthenticationController authenticationController =
       AuthenticationController.to;
+  final GameRoomController gameRoomController = GameRoomController.to;
 
   @override
   Widget build(BuildContext context) {
@@ -75,12 +77,16 @@ class SignIn extends StatelessWidget {
                 ),
                 GestureDetector(
                     onTap: () async {
-                  
                       authenticationController.loadingIndicator.value = true;
 
                       if (await authenticationController
                           .signInWithEmail(context)) {
+                        await authenticationController.setUpAuthController(
+                            gameRoomController.gameRoomList);
+                        await gameRoomController.controllerSetUp(
+                            authenticationController.user.value);
                         authenticationController.loadingIndicator.value = false;
+
                         Get.to(Home());
                       }
                     },

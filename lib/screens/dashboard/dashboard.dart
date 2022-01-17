@@ -6,7 +6,6 @@ import 'package:ctrl_app/screens/dashboard/widgets/informationbox_totalgamespart
 import 'package:ctrl_app/screens/dashboard/widgets/informationbox_wallet.dart';
 import 'package:ctrl_app/screens/dashboard/widgets/informationbox_workout.dart';
 import 'package:ctrl_app/screens/dashboard/widgets/name_avatarsection.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -44,10 +43,7 @@ class Dashboard extends StatelessWidget {
                   Column(
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          // authenticationController.getUserInfo();
-                          FirebaseAuth.instance.signOut();
-                        },
+                        onTap: () {},
                         child: Obx(
                           () => InformationBoxWorkoutCompleted(
                             graph: false,

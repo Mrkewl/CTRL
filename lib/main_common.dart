@@ -19,10 +19,16 @@ Future<void> mainCommon(FlavorConfig config) async {
   final AuthenticationController authenticationController =
       AuthenticationController.to;
   Get.put(GameRoomController());
+
   final GameRoomController gameRoomController = GameRoomController.to;
-  await gameRoomController.controllerSetUp(authenticationController.user.value);
   await authenticationController
       .setUpAuthController(gameRoomController.gameRoomList);
+
+  ///* To check if user is logged in or not
+  if (authenticationController.user.value.email.isNotEmpty) {
+    await gameRoomController
+        .controllerSetUp(authenticationController.user.value);
+  }
 
   runApp(
     MyApp(),

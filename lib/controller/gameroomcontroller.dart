@@ -29,7 +29,7 @@ class GameRoomController extends GetxController {
 
   Future<void> controllerSetUp(UserModel user) async {
     await getAllGameRoom();
-    participatingGameRoomList.value = getParticipatingGameRooms(user);
+    await getParticipatingGameRooms(user);
     await triggerStartGame();
     await checkMissedWorkout();
     await getListEachParticipantAmountLossAtEndWeek();
@@ -55,16 +55,14 @@ class GameRoomController extends GetxController {
     }
   }
 
-  List<GameRoomModel> getParticipatingGameRooms(UserModel user) {
-    final List<GameRoomModel> participatingGameRooms = [];
+  Future<void> getParticipatingGameRooms(UserModel user) async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       for (final ParticipantModel participant in gameRoom.participants!) {
         if (participant.email == user.email) {
-          participatingGameRooms.add(gameRoom);
+          participatingGameRoomList.add(gameRoom);
         }
       }
     }
-    return participatingGameRooms;
   }
 
   Future<void> updateDocumentInStorage() async {
@@ -96,13 +94,12 @@ class GameRoomController extends GetxController {
     for (final GameRoomModel gameRoom in gameRoomList) {
       for (final ParticipantModel participant in gameRoom.participants!) {
         for (final GameWeekModel gameWeek in participant.gameWeekModel) {
-          //TODO remove datetime and change to datetime now
           if (DateFormat('dd-MM-yyyy')
                   .parse(gameWeek.endDate)
-                  .isBefore(DateTime(2022, 1, 27)) ||
+                  .isBefore(DateTime.now()) ||
               DateFormat('dd-MM-yyyy')
                   .parse(gameWeek.endDate)
-                  .isAtSameMomentAs(DateTime(2022, 1, 27))) {
+                  .isAtSameMomentAs(DateTime.now())) {
             if (gameWeek.workoutDays.length <
                 participant.commitmentAmountPerWeek) {
               gameWeek.missedWorkoutThisWeek =
@@ -177,6 +174,26 @@ class GameRoomController extends GetxController {
     }
   }
 
+  double getUserAmountHolding(UserModel user, GameRoomModel gameRoom) {
+    final ParticipantModel currentUser = gameRoom.participants!
+        .firstWhere((element) => element.email == user.email);
+    return gameRoom.buyInAmount! -
+        currentUser.currentAmountLost! +
+        currentUser.currentAmountEarned!;
+  }
+
+  ParticipantModel getParticipantData(GameRoomModel gameRoom, UserModel user) {
+    return gameRoom.participants!
+        .firstWhere((element) => element.email == user.email);
+  }
+
+  String getWeeksLeft(GameRoomModel gameRoom) {
+    final Duration durationLeft = DateFormat('dd-MM-yyyy')
+        .parse(gameRoom.endDate!)
+        .difference(DateTime.now());
+    return 'Week/Weeks: ${(durationLeft.inDays / 7).toStringAsFixed(0)}\nDays: ${(durationLeft.inDays % 7).toStringAsFixed(0)}';
+  }
+
   Future<void> distributeLostAmountToParticipants() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       await clearAllEarnedAmount(gameRoom);
@@ -222,7 +239,8 @@ class GameRoomController extends GetxController {
     for (final ParticipantModel participant in gameRoom.participants!) {
       for (final GameWeekModel gameWeek in participant.gameWeekModel) {
         log((gameWeek.lostThisWeek =
-            participant.lostAmountPerUnit * gameWeek.missedWorkoutThisWeek).toString());
+                participant.lostAmountPerUnit * gameWeek.missedWorkoutThisWeek)
+            .toString());
       }
     }
   }
@@ -364,6 +382,25 @@ class GameRoomController extends GetxController {
         return;
       }
     }
+  }
+
+  Future<void> checkInAllGames() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      await workoutCheckin(gameRoom, authenticationController.user.value);
+    }
+  }
+
+  GameWeekModel getGameWeek(GameRoomModel gameRoom, UserModel user) {
+    late GameWeekModel currentGameWeek;
+    final int participantIndex = gameRoom.participants!
+        .indexWhere((element) => element.email == user.email);
+    for (final GameWeekModel gameWeek
+        in gameRoom.participants![participantIndex].gameWeekModel) {
+      if (weekCheck(startDate: gameWeek.startDate, endDate: gameWeek.endDate)) {
+        currentGameWeek = gameWeek;
+      }
+    }
+    return currentGameWeek;
   }
 
   /// Can put in Extension

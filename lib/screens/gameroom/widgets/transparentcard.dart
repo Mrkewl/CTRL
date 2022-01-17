@@ -18,7 +18,7 @@ class TransparentCard extends StatelessWidget {
         padding: const EdgeInsets.only(top: 16, right: 16),
         child: Container(
           width: MediaQuery.of(context).size.width,
-          height:  150,
+          height:  180,
           decoration: BoxDecoration(
             color: ColorPalette.black,
             boxShadow: [
@@ -44,7 +44,7 @@ class TransparentCard extends StatelessWidget {
             ),
             child: Container(
               width: MediaQuery.of(context).size.width,
-              height:  150,
+              height:  180,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [

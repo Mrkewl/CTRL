@@ -5,6 +5,7 @@ import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/models/gameroom_model.dart';
 import 'package:ctrl_app/screens/gameroom/widgets/participant_card.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'widgets/cardsection_dots.dart';
 import 'widgets/gameinformationbeforestart.dart';
@@ -68,25 +69,6 @@ class GameRoom extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: ()async {
-                  // gameRoomController.participateInGame(
-                      // gameRoom: gameRoom,
-                      // user: authenticationController.user.value,
-                      // context: context);
-                  // gameRoomController.workoutCheckin(
-                  //     gameRoom, authenticationController.user.value);
-                  //  gameRoomController.checkMissedWorkout();
-                  // gameRoomController.individuallossAmountPerWeek();
-                  // print(await gameRoomController.getTotalAmountLossAtEndWeek(gameRoom));
-                  // print(await gameRoomController.totalAmountOfUnits(gameRoom));
-                // print(gameRoomController.getListEachParticipantAmountLossAtEndWeek());
-                gameRoomController.controllerSetUp(authenticationController.user.value);
-                  // gameRoomController.updatePotAmount(gameRoom);
-                //  gameRoomController.updateDocumentInStorage();
-                },
-                icon: const Icon(Icons.ac_unit),
-              ),
               if (gameRoom.started != true)
                 GameInformationBeforeStart(
                   gameRoom: gameRoom,
@@ -98,10 +80,19 @@ class GameRoom extends StatelessWidget {
                   roomLimit: gameRoom.roomLimit!,
                   startDate: gameRoom.startDate!,
                 ),
-              if (gameRoom.started == true) SwipableCardSection(),
               if (gameRoom.started == true)
-                CardSectionDots(
-                  dotNumber: homeController.gameRoomCard.value,
+                SwipableCardSection(
+                  participant: gameRoomController.getParticipantData(
+                      gameRoom, authenticationController.user.value),
+                  gameRoom: gameRoom,
+                  totalWorkoutLeft:gameRoomController.getParticipantData(
+                      gameRoom, authenticationController.user.value).commitmentAmountPerWeek - gameRoomController.getGameWeek(gameRoom, authenticationController.user.value).workoutDays.length,
+                ),
+              if (gameRoom.started == true)
+                Obx(
+                  () => CardSectionDots(
+                    dotNumber: homeController.gameRoomCard.value,
+                  ),
                 ),
               Padding(
                 padding: const EdgeInsets.only(
@@ -131,6 +122,7 @@ class GameRoom extends StatelessWidget {
                     ListView.builder(
                         itemCount: gameRoom.participants!.length,
                         shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) => ParticipantCard(
                             avatarImage: gameRoom.participants![index].photoUrl,
                             name: gameRoom.participants![index].userName,

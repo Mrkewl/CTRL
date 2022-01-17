@@ -1,6 +1,7 @@
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/dashboardcontroller.dart';
 import 'package:ctrl_app/screens/dashboard/dashboard.dart';
+import 'package:ctrl_app/screens/participating_gamerooms/participating_gamerooms_screen.dart';
 import 'package:ctrl_app/screens/registration/register_information_page.dart';
 import 'package:ctrl_app/screens/search/searchpage.dart';
 import 'package:flutter/material.dart';
@@ -13,14 +14,13 @@ class Home extends StatelessWidget {
   final List<Widget> pages = [
     Dashboard(),
      SearchPage(),
-    RegisterInformation(),
+ParticipatingGameRooms(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        /// TODO the pop scopeewdds
         final timeBackPressed = DateTime.now();
         final difference = DateTime.now().difference(timeBackPressed);
         final isExitWarning = difference >= const Duration(seconds: 2);
