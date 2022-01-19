@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
+import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/screens/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,25 +12,25 @@ import '../register_information_page.dart';
 class GoogleChip extends StatelessWidget {
   GoogleChip({
     Key? key,
- 
   }) : super(key: key);
   final AuthenticationController authenticationController =
       AuthenticationController.to;
+  final GameRoomController gameRoomController = GameRoomController.to;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-     final   googleSignupResults googleSignUpResults =  await authenticationController.signInSignUpWithGoogle(context);
-     
-          if (googleSignUpResults ==
-              googleSignupResults.signIn) {
-            Get.to(Home());
-          } else if (googleSignUpResults ==
-              googleSignupResults.register) {
-            Get.to(RegisterInformation());
-          }
-        
+        final googleSignupResults googleSignUpResults =
+            await authenticationController.signInSignUpWithGoogle(context);
+
+        if (googleSignUpResults == googleSignupResults.signIn) {
+          gameRoomController
+              .controllerSetUp(authenticationController.user.value);
+          Get.to(Home());
+        } else if (googleSignUpResults == googleSignupResults.register) {
+          Get.to(RegisterInformation());
+        }
       },
       child: Stack(alignment: Alignment.center, children: [
         Padding(
