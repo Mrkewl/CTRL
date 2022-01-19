@@ -76,24 +76,18 @@ android {
 
     dev {
     dimension "app"
-    applicationId "com.example.ctrl_app.dev"
+    applicationId "com.ctrl.ctrl_app.dev"
     versionCode 1
     versionName "1.0"
      }
     prod {
     dimension "app"
-    applicationId "com.example.ctrl_app.prod"
+    applicationId "com.ctrl.ctrl_app.prod"
     versionCode 1
     versionName "1.0"
  
         }
-    ctrldev {
-    dimension "app"
-    applicationId "com.ctrl.ctrl_app.dev"
-    versionCode 1
-    versionName "1.0"
- 
-        }
+
 }
 }
 
