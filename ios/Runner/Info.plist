@@ -12,6 +12,22 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<!-- Put me in the [my_project]/ios/Runner/Info.plist file -->
+<!-- Google Sign-in Section -->
+<key>CFBundleURLTypes</key>
+<array>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Editor</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+			<!-- TODO Replace this value: -->
+			<!-- Copied from GoogleService-Info.plist key REVERSED_CLIENT_ID -->
+			<string>com.googleusercontent.apps.886323979908-t1fuqd4t9flba4l33ljstgtf7dapuui9</string>
+		</array>
+	</dict>
+</array>
+<!-- End of the Google Sign-in Section -->
 	<key>CFBundleName</key>
 	<string>ctrl_app</string>
 	<key>NSAppTransportSecurity</key>
