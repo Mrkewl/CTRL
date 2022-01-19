@@ -427,6 +427,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.1"
+<<<<<<< HEAD
   xml:
     dependency: transitive
     description:
@@ -441,6 +442,8 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.0"
+=======
+>>>>>>> ccfd2e8bcada0763a0c657f2a8ea34242225fead
 sdks:
   dart: ">=2.14.0 <3.0.0"
   flutter: ">=2.5.0"
