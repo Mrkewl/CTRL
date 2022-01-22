@@ -65,7 +65,7 @@ final AuthenticationController authenticationController = AuthenticationControll
                 ),
               ),
               child:  Center(
-                  child:Obx(()=> authenticationController.loadingIndicator.value == false? Text(
+                  child:Obx(()=> authenticationController.loadingIndicatorForRegistrationLogin.value == false? Text(
                text,
                 style:
                     const TextStyle(color: ColorPalette.snow, fontSize: 20),

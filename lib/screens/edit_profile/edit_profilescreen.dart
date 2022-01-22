@@ -45,12 +45,12 @@ class EditProfileScreen extends StatelessWidget {
                     onTap: () async {
                       authenticationController.missionStatement.value =
                           missionStatement.text;
-              
+
                       //this is to make sure the missionstatement get saved 1st
-                       await Future.delayed(const Duration(seconds: 1));
-                       authenticationController
-                           .changeMissionStatement()
-                           .then((value) => Navigator.pop(context));
+                      await Future.delayed(const Duration(seconds: 1));
+                      authenticationController
+                          .changeMissionStatement()
+                          .then((value) => Navigator.pop(context));
                     },
                     child: const Text(
                       'Done',
@@ -71,17 +71,27 @@ class EditProfileScreen extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () async {
+                          authenticationController
+                              .loadingIndicatorForProfileUpload.value = true;
                           await authenticationController
                               .uploadImageToFirebase();
+                          authenticationController
+                              .loadingIndicatorForProfileUpload.value = false;
                         },
-                        child: Obx(
-                          () => CircleAvatar(
-                            minRadius: 40,
-                            maxRadius: 40,
-                            backgroundImage: NetworkImage(
-                                authenticationController.profilePicture),
-                          ),
-                        ),
+                        child: Obx(() => CircleAvatar(
+                              backgroundColor: ColorPalette.black,
+                              minRadius: 40,
+                              maxRadius: 40,
+                              backgroundImage: !authenticationController
+                                      .loadingIndicatorForProfileUpload.value
+                                  ? NetworkImage(
+                                      authenticationController.profilePicture)
+                                  : null,
+                              child: authenticationController
+                                      .loadingIndicatorForProfileUpload.value
+                                  ? const CircularProgressIndicator()
+                                  : null,
+                            )),
                       ),
                       const Positioned(
                           right: 0,

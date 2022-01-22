@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AvatarFieldWidget extends StatelessWidget {
-   AvatarFieldWidget({
+  AvatarFieldWidget({
     Key? key,
   }) : super(key: key);
   final AuthenticationController authenticationController =
@@ -41,33 +41,36 @@ class AvatarFieldWidget extends StatelessWidget {
                 sigmaY: 20,
               ),
               child: Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withOpacity(0.2),
-                      Colors.white.withOpacity(0.1),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withOpacity(0.2),
+                        Colors.white.withOpacity(0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(360)),
                   ),
-                  borderRadius: const BorderRadius.all(Radius.circular(360)),
-             
-                ),
-                child:Obx(()=> authenticationController.avatarImage.value.isEmpty
-                    ? Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                          'assets/logo/ninja.png',
-                          scale: 3,
-                        ),
-                    )
-                    : Image.network(
-                        authenticationController.avatarImage.value,
-                       fit: BoxFit.cover,
-                      ),)
-              ),
+                  child: Obx(
+                    () => !authenticationController
+                            .loadingIndicatorForProfileUpload.value
+                        ? authenticationController.avatarImage.value.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Image.asset(
+                                  'assets/logo/ninja.png',
+                                  scale: 3,
+                                ),
+                              )
+                            : Image.network(
+                                authenticationController.avatarImage.value,
+                                fit: BoxFit.cover,
+                              )
+                        : const CircularProgressIndicator(),
+                  )),
             ),
           ),
         ),

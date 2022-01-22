@@ -71,16 +71,21 @@ class RegisterInformation extends StatelessWidget {
                     ),
                     GestureDetector(
                         onTap: () async {
+                          authenticationController
+                              .loadingIndicatorForProfileUpload.value = true;
                           await authenticationController
                               .uploadImageToFirebase();
+                                authenticationController
+                              .loadingIndicatorForProfileUpload.value = false;
                         },
-                        child: AvatarFieldWidget()),
+                        child:
+                             AvatarFieldWidget()),
                     const Spacer(),
                     Center(
                       child: GestureDetector(
                           onTap: () async {
-                            authenticationController.loadingIndicator.value =
-                                true;
+                            authenticationController
+                                .loadingIndicatorForRegistrationLogin.value = true;
                             if (DateTime.now().year -
                                     DateFormat('dd-MM-yyyy')
                                         .parse(authenticationController
@@ -96,13 +101,14 @@ class RegisterInformation extends StatelessWidget {
                                     context)) {
                               await gameRoomController.controllerSetUp(
                                   authenticationController.user.value);
-                              authenticationController.loadingIndicator.value =
-                                  false;
+                              authenticationController
+                                  .loadingIndicatorForRegistrationLogin
+                                  .value = false;
 
                               Get.to(Home());
                             }
-                            authenticationController.loadingIndicator.value =
-                                false;
+                            authenticationController
+                                .loadingIndicatorForRegistrationLogin.value = false;
                           },
                           child: PurpleMainButtonWidget(text: 'Register')),
                     ),

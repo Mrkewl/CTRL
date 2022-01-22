@@ -2,7 +2,7 @@ import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/controller/dashboardcontroller.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/screens/registration/register_information_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';

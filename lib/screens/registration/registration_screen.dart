@@ -91,13 +91,13 @@ class Registration extends StatelessWidget {
                 GestureDetector(
                     onTap: () async {
                       try {
-                      authenticationController.loadingIndicator.value = true;
+                      authenticationController.loadingIndicatorForRegistrationLogin.value = true;
                         if (await authenticationController
                             .validationCheckRegistration(context)) {
-                           authenticationController.loadingIndicator.value = false;
+                           authenticationController.loadingIndicatorForRegistrationLogin.value = false;
                           Get.to(RegisterInformation());
                         }
-                         authenticationController.loadingIndicator.value = false;
+                         authenticationController.loadingIndicatorForRegistrationLogin.value = false;
                       } catch (e) {
                         log(e.toString());
                       }

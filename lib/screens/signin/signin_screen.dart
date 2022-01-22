@@ -84,7 +84,7 @@ class SignIn extends StatelessWidget {
                 ),
                 GestureDetector(
                     onTap: () async {
-                      authenticationController.loadingIndicator.value = true;
+                      authenticationController.loadingIndicatorForRegistrationLogin.value = true;
 
                       if (await authenticationController
                           .signInWithEmail(context)) {
@@ -92,7 +92,7 @@ class SignIn extends StatelessWidget {
                             gameRoomController.gameRoomList);
                         await gameRoomController.controllerSetUp(
                             authenticationController.user.value);
-                        authenticationController.loadingIndicator.value = false;
+                        authenticationController.loadingIndicatorForRegistrationLogin.value = false;
 
                         Get.to(Home());
                       }

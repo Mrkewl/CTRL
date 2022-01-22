@@ -33,7 +33,8 @@ class AuthenticationController extends GetxController {
   RxString photoUrl = ''.obs;
   RxString dateCreated = ''.obs;
   RxBool registrationInformation = false.obs;
-  RxBool loadingIndicator = false.obs;
+  RxBool loadingIndicatorForRegistrationLogin = false.obs;
+  RxBool loadingIndicatorForProfileUpload = false.obs;
   RxString missionStatement = ''.obs;
 
   RxString avatarImage = ''.obs;
@@ -107,6 +108,32 @@ class AuthenticationController extends GetxController {
       ));
       return false;
     }
+  }
+
+  Future<void> logOut() async {
+   await auth.signOut();
+    user = UserModel(
+            totalAmountLost: 0,
+            totalAmountTopUp: 0,
+            email: '',
+            firstName: '',
+            lastName: '',
+            userName: '',
+            gender: '',
+            dateOfBirth: '',
+            country: '',
+            photoUrl: '',
+            dateCreated: '',
+            registrationInformation: false,
+            missionStatement: '',
+            avatarImage: '',
+            totalCompletedWorkout: 0,
+            walletAmount: 0,
+            totalGamesParticipated: 0,
+            totalMissedWorkout: 0,
+            totalEarnings: 0,
+            totalGamesParticipating: 0)
+        .obs;
   }
 
   Future<bool> validationCheckUserInformationAndStore(
@@ -322,7 +349,7 @@ class AuthenticationController extends GetxController {
           user.value.totalAmountLost;
       await usersData.doc(FirebaseAuth.instance.currentUser!.email).update({
         'totalAmountTopUp': user.value.totalAmountTopUp,
-        'walletAmount' : user.value.walletAmount
+        'walletAmount': user.value.walletAmount
       });
       user.refresh();
     } catch (e) {
@@ -341,9 +368,11 @@ class AuthenticationController extends GetxController {
       final UploadTask uploadTask = firebaseStorageRef.putFile(_imageFile);
       await uploadTask.then((res) async {
         user.value.avatarImage = await res.ref.getDownloadURL();
+        avatarImage.value = await res.ref.getDownloadURL();
       });
     }
     updateDocument();
+    user.refresh();
   }
 
   String basename(String path) {
@@ -441,9 +470,8 @@ class AuthenticationController extends GetxController {
   }
 
   double amountHolding(List<GameRoomModel> gameRooms) {
-    return user.value.walletAmount +
-        user.value.totalEarnings -
-        totalAmountLoss(gameRooms);
+    //TODO When compartment and then deduct
+    return user.value.walletAmount;
   }
 
   double totalAmountLoss(List<GameRoomModel> gameRooms) {

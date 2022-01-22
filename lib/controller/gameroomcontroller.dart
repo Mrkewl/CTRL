@@ -28,6 +28,7 @@ class GameRoomController extends GetxController {
       FirebaseFirestore.instance.collection('gamerooms');
 
   Future<void> controllerSetUp(UserModel user) async {
+    await clearGameRooms();
     await getAllGameRoom();
     await getParticipatingGameRooms(user);
     await triggerStartGame();
@@ -363,19 +364,18 @@ class GameRoomController extends GetxController {
         if (workoutCheckInToday(gameWeek.workoutDays)) {
           showDialog(
             context: context,
-            builder: (context) =>  Dialog(
-            child: Container(
-              color: ColorPalette.black,
-              child: const Padding(
-                padding: EdgeInsets.all(24.0),
-                child: Text(
+            builder: (context) => Dialog(
+              child: Container(
+                color: ColorPalette.black,
+                child: const Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Text(
                     'You have already checked in for today \n\nSee you next workout!',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: ColorPalette.snow, fontSize: 24),
                   ),
+                ),
               ),
-            ),
-          
             ),
           );
 
@@ -397,21 +397,20 @@ class GameRoomController extends GetxController {
               .doc(gameRoom.documentId)
               .set(gameRoom.toMap(), SetOptions(merge: true));
           log('Workout has been added');
-             showDialog(
+          showDialog(
             context: context,
-            builder: (context) =>  Dialog(
-            child: Container(
-              color: ColorPalette.black,
-              child: const Padding(
-                padding: EdgeInsets.all(24.0),
-                child: Text(
+            builder: (context) => Dialog(
+              child: Container(
+                color: ColorPalette.black,
+                child: const Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Text(
                     'Checked in Successfully. \n Great work! Keep it up!',
                     textAlign: TextAlign.left,
                     style: TextStyle(color: ColorPalette.snow, fontSize: 24),
                   ),
+                ),
               ),
-            ),
-          
             ),
           );
         }
@@ -425,6 +424,11 @@ class GameRoomController extends GetxController {
       await workoutCheckin(
           gameRoom, authenticationController.user.value, context);
     }
+  }
+
+  Future<void> clearGameRooms() async {
+    gameRoomList.value = <GameRoomModel>[].obs;
+    participatingGameRoomList.value = <GameRoomModel>[].obs;
   }
 
   GameWeekModel getGameWeek(GameRoomModel gameRoom, UserModel user) {

@@ -21,6 +21,8 @@ class GoogleChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
+        authenticationController.loadingIndicatorForRegistrationLogin.value =
+            true;
         final googleSignupResults googleSignUpResults =
             await authenticationController.signInSignUpWithGoogle(context);
 
@@ -28,8 +30,12 @@ class GoogleChip extends StatelessWidget {
           gameRoomController
               .controllerSetUp(authenticationController.user.value);
           Get.to(Home());
+          authenticationController.loadingIndicatorForRegistrationLogin.value =
+              false;
         } else if (googleSignUpResults == googleSignupResults.register) {
           Get.to(RegisterInformation());
+          authenticationController.loadingIndicatorForRegistrationLogin.value =
+              false;
         }
       },
       child: Stack(alignment: Alignment.center, children: [
@@ -74,9 +80,14 @@ class GoogleChip extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Image.asset(
-                      'assets/logo/google.png',
-                      scale: 6,
+                    Obx(
+                      () => authenticationController
+                              .loadingIndicatorForRegistrationLogin.value
+                          ? const CircularProgressIndicator()
+                          : Image.asset(
+                              'assets/logo/google.png',
+                              scale: 6,
+                            ),
                     ),
                     const Text(
                       'Google',
