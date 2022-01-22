@@ -284,14 +284,13 @@ class AuthenticationController extends GetxController {
   }
 
   Future<void> setUpAuthController(List<GameRoomModel> gameRooms) async {
-    await getUserInfo();
     if (user.value.email.isNotEmpty) {
       user.value.totalCompletedWorkout = totalCompletedWorkout(gameRooms);
-      // user.value.totalEarnings = totalEarnings(gameRooms);
-      // user.value.totalGamesParticipated = totalGamesParticipated(gameRooms);
-      // user.value.totalGamesParticipating = totalGamesParticipating(gameRooms);
-      // user.value.totalMissedWorkout = totalMissedWorkout(gameRooms);
-      // user.value.walletAmount = amountHolding(gameRooms);
+      user.value.totalEarnings = totalEarnings(gameRooms);
+      user.value.totalGamesParticipated = totalGamesParticipated(gameRooms);
+      user.value.totalGamesParticipating = totalGamesParticipating(gameRooms);
+      user.value.totalMissedWorkout = totalMissedWorkout(gameRooms);
+      user.value.walletAmount = amountHolding(gameRooms);
       updateDocument();
     }
   }
