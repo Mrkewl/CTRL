@@ -141,14 +141,14 @@ class UserModel {
       registrationInformation: map['registrationInformation'] ?? false,
       missionStatement: map['missionStatement'] ?? '',
       avatarImage: map['avatarImage'] ?? '',
-      totalCompletedWorkout: map['totalCompletedWorkout']?.toInt() ?? 0,
-      walletAmount: map['walletAmount']?.toDouble() ?? 0.0,
-      totalGamesParticipated: map['totalGamesParticipated']?.toInt() ?? 0,
-      totalMissedWorkout: map['totalMissedWorkout']?.toInt() ?? 0,
-      totalEarnings: map['totalEarnings']?.toDouble() ?? 0.0,
-      totalGamesParticipating: map['totalGamesParticipating']?.toInt() ?? 0,
-      totalAmountLost: map['totalAmountLost']?.toDouble() ?? 0.0,
-      totalAmountTopUp: map['totalAmountTopUp']?.toDouble() ?? 0.0,
+      totalCompletedWorkout: map['totalCompletedWorkout'] ?? 0,
+      walletAmount: map['walletAmount'].toDouble() ?? 0,
+      totalGamesParticipated: map['totalGamesParticipated'] ?? 0,
+      totalMissedWorkout: map['totalMissedWorkout'] ?? 0,
+      totalEarnings: map['totalEarnings'] ?? 0.0,
+      totalGamesParticipating: map['totalGamesParticipating']?? 0,
+      totalAmountLost: map['totalAmountLost'] ?? 0.0,
+      totalAmountTopUp: map['totalAmountTopUp'] ?? 0.0,
     );
   }
 

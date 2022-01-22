@@ -21,6 +21,7 @@ Future<void> mainCommon(FlavorConfig config) async {
   Get.put(GameRoomController());
 
   final GameRoomController gameRoomController = GameRoomController.to;
+  
   await authenticationController
       .setUpAuthController(gameRoomController.gameRoomList);
 

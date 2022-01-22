@@ -55,9 +55,8 @@ class WalletSettingsScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(
                       left: 16.0, right: 16.0, bottom: 16.0),
                   child: Text(
-                    authenticationController.currentBalance.value.isEmpty
-                        ? '\$' '0'
-                        : '\$${authenticationController.currentBalance.value}',
+                 
+                         '\$${authenticationController.user.value.walletAmount}',
                     style:
                         const TextStyle(color: ColorPalette.snow, fontSize: 40),
                   )),

@@ -2,6 +2,7 @@ import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/common/widgets/landingpage_button_widget.dart';
 import 'package:ctrl_app/common/widgets/registrationtextfield_widget.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
+import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/screens/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +14,7 @@ class RegisterInformation extends StatelessWidget {
   RegisterInformation({Key? key}) : super(key: key);
   final AuthenticationController authenticationController =
       AuthenticationController.to;
+  final GameRoomController gameRoomController = GameRoomController.to;
 
   @override
   Widget build(BuildContext context) {
@@ -68,21 +70,23 @@ class RegisterInformation extends StatelessWidget {
                       header: 'Date Of Birth',
                     ),
                     GestureDetector(
-                      onTap: ()async {
-                   await authenticationController.uploadImageToFirebase();
-                    
-                      },
-                      child:  AvatarFieldWidget()),
+                        onTap: () async {
+                          await authenticationController
+                              .uploadImageToFirebase();
+                        },
+                        child: AvatarFieldWidget()),
                     const Spacer(),
                     Center(
                       child: GestureDetector(
                           onTap: () async {
                             authenticationController.loadingIndicator.value =
                                 true;
-                            if (DateTime.now().year - DateFormat('dd-MM-yyyy')
-                                    .parse(authenticationController
-                                        .dateOfBirth.value)
-                                    .year < 18) {
+                            if (DateTime.now().year -
+                                    DateFormat('dd-MM-yyyy')
+                                        .parse(authenticationController
+                                            .dateOfBirth.value)
+                                        .year <
+                                18) {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(const SnackBar(
                                 content: Text('You have to be older than 18'),
@@ -90,8 +94,11 @@ class RegisterInformation extends StatelessWidget {
                             } else if (await authenticationController
                                 .validationCheckUserInformationAndStore(
                                     context)) {
+                              await gameRoomController.controllerSetUp(
+                                  authenticationController.user.value);
                               authenticationController.loadingIndicator.value =
                                   false;
+
                               Get.to(Home());
                             }
                             authenticationController.loadingIndicator.value =

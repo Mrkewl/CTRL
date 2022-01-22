@@ -35,7 +35,7 @@ class AuthenticationController extends GetxController {
   RxBool registrationInformation = false.obs;
   RxBool loadingIndicator = false.obs;
   RxString missionStatement = ''.obs;
-  RxString currentBalance = ''.obs;
+
   RxString avatarImage = ''.obs;
   Rx<UserModel> user = UserModel(
           totalAmountLost: 0,
@@ -261,10 +261,12 @@ class AuthenticationController extends GetxController {
         if (registrationInformation.value == false) {
           return;
         } else {
+    
           await usersData
               .doc(FirebaseAuth.instance.currentUser!.email)
               .get()
               .then((DocumentSnapshot documentSnapshot) => {
+                log(documentSnapshot.data().toString()),
                     user = UserModel.fromMap(
                             documentSnapshot.data()! as Map<String, dynamic>)
                         .obs
@@ -285,11 +287,11 @@ class AuthenticationController extends GetxController {
     await getUserInfo();
     if (user.value.email.isNotEmpty) {
       user.value.totalCompletedWorkout = totalCompletedWorkout(gameRooms);
-      user.value.totalEarnings = totalEarnings(gameRooms);
-      user.value.totalGamesParticipated = totalGamesParticipated(gameRooms);
-      user.value.totalGamesParticipating = totalGamesParticipating(gameRooms);
-      user.value.totalMissedWorkout = totalMissedWorkout(gameRooms);
-      user.value.walletAmount = amountHolding(gameRooms);
+      // user.value.totalEarnings = totalEarnings(gameRooms);
+      // user.value.totalGamesParticipated = totalGamesParticipated(gameRooms);
+      // user.value.totalGamesParticipating = totalGamesParticipating(gameRooms);
+      // user.value.totalMissedWorkout = totalMissedWorkout(gameRooms);
+      // user.value.walletAmount = amountHolding(gameRooms);
       updateDocument();
     }
   }
@@ -314,13 +316,13 @@ class AuthenticationController extends GetxController {
 
   Future<void> addBalance(double topUp) async {
     try {
-      final double totalAmount = double.parse(
-              currentBalance.value.isEmpty ? '0' : currentBalance.value) +
-          topUp;
-      currentBalance.value = totalAmount.toString();
-      await usersData.doc(FirebaseAuth.instance.currentUser!.email).set({
-        'walletAmount': currentBalance.value,
-      }, SetOptions(merge: true));
+      print(user.value.walletAmount);
+      
+          user.value.walletAmount = user.value.walletAmount + topUp;
+      
+      await usersData.doc(FirebaseAuth.instance.currentUser!.email).update({
+        'walletAmount': user.value.walletAmount,
+      });
     } catch (e) {
       log(e.toString());
     }
