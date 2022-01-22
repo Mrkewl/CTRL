@@ -28,6 +28,13 @@ class Registration extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
+                 Align(
+                  alignment: Alignment.topLeft,
+                  child:  GestureDetector(
+                    onTap: (){Navigator.pop(context);},
+                    child: const Icon(Icons.arrow_back_rounded, size: 40,
+                    color: ColorPalette.snow,),
+                  )),
                 const SizedBox(
                   height: 16,
                 ),
