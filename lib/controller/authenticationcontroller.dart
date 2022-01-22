@@ -261,12 +261,11 @@ class AuthenticationController extends GetxController {
         if (registrationInformation.value == false) {
           return;
         } else {
-    
           await usersData
               .doc(FirebaseAuth.instance.currentUser!.email)
               .get()
               .then((DocumentSnapshot documentSnapshot) => {
-                log(documentSnapshot.data().toString()),
+                    log(documentSnapshot.data().toString()),
                     user = UserModel.fromMap(
                             documentSnapshot.data()! as Map<String, dynamic>)
                         .obs
@@ -291,6 +290,7 @@ class AuthenticationController extends GetxController {
       user.value.totalGamesParticipating = totalGamesParticipating(gameRooms);
       user.value.totalMissedWorkout = totalMissedWorkout(gameRooms);
       user.value.walletAmount = amountHolding(gameRooms);
+      user.value.totalAmountLost = totalAmountLoss(gameRooms);
       updateDocument();
     }
   }
@@ -313,15 +313,18 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  Future<void> addBalance(double topUp) async {
+  Future<void> topUp(double topUp) async {
     try {
-      print(user.value.walletAmount);
-      
-          user.value.walletAmount = user.value.walletAmount + topUp;
-      
+      log(user.value.walletAmount.toString());
+      user.value.totalAmountTopUp = user.value.totalAmountTopUp + topUp;
+      user.value.walletAmount = user.value.totalAmountTopUp +
+          user.value.totalEarnings -
+          user.value.totalAmountLost;
       await usersData.doc(FirebaseAuth.instance.currentUser!.email).update({
-        'walletAmount': user.value.walletAmount,
+        'totalAmountTopUp': user.value.totalAmountTopUp,
+        'walletAmount' : user.value.walletAmount
       });
+      user.refresh();
     } catch (e) {
       log(e.toString());
     }
@@ -457,6 +460,8 @@ class AuthenticationController extends GetxController {
     return totalAmountLoss;
   }
 }
+
+
 //post_install do |installer|
 //   installer.pods_project.targets.each do |target|
 //     flutter_additional_ios_build_settings(target)

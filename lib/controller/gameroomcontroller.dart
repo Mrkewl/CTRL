@@ -348,7 +348,8 @@ class GameRoomController extends GetxController {
     return gameWeeksStructureList;
   }
 
-  Future<void> workoutCheckin(GameRoomModel gameRoom, UserModel user) async {
+  Future<void> workoutCheckin(
+      GameRoomModel gameRoom, UserModel user, BuildContext context) async {
     ///*This is to check which participant
     final int participantIndex = gameRoom.participants!
         .indexWhere((element) => element.email == user.email);
@@ -360,6 +361,24 @@ class GameRoomController extends GetxController {
       if (weekCheck(startDate: gameWeek.startDate, endDate: gameWeek.endDate)) {
         ///*This is to check if user has worked out today
         if (workoutCheckInToday(gameWeek.workoutDays)) {
+          showDialog(
+            context: context,
+            builder: (context) =>  Dialog(
+            child: Container(
+              color: ColorPalette.black,
+              child: const Padding(
+                padding: EdgeInsets.all(24.0),
+                child: Text(
+                    'You have already checked in for today \n\nSee you next workout!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: ColorPalette.snow, fontSize: 24),
+                  ),
+              ),
+            ),
+          
+            ),
+          );
+
           log('You have already worked out today');
         } else if (!workoutCheckInToday(gameWeek.workoutDays)) {
           ///* Get the index of the game week to check
@@ -378,15 +397,33 @@ class GameRoomController extends GetxController {
               .doc(gameRoom.documentId)
               .set(gameRoom.toMap(), SetOptions(merge: true));
           log('Workout has been added');
+             showDialog(
+            context: context,
+            builder: (context) =>  Dialog(
+            child: Container(
+              color: ColorPalette.black,
+              child: const Padding(
+                padding: EdgeInsets.all(24.0),
+                child: Text(
+                    'Checked in Successfully. \n Great work! Keep it up!',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(color: ColorPalette.snow, fontSize: 24),
+                  ),
+              ),
+            ),
+          
+            ),
+          );
         }
         return;
       }
     }
   }
 
-  Future<void> checkInAllGames() async {
+  Future<void> checkInAllGames(BuildContext context) async {
     for (final GameRoomModel gameRoom in gameRoomList) {
-      await workoutCheckin(gameRoom, authenticationController.user.value);
+      await workoutCheckin(
+          gameRoom, authenticationController.user.value, context);
     }
   }
 

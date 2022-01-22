@@ -9,7 +9,6 @@ DONE
 4. put another if else on distribution method so that if user with 0 workout they 
 do not get part of the distribution
 
-5. Create checkin button
 
 6. Create custom loggin for secret code 
 
@@ -17,10 +16,28 @@ do not get part of the distribution
 
 9. Change launcher icon
 
-10. change schemas for x code
 
 
 13. profile page registration issue. profile picture not refreshing
+
+15.  To deduct and set aside money invested in game
+to not reflect wallet balance immediately until game is done
+
+16. loading button
+
+17. apple loggin
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 DONE TASK
@@ -40,3 +57,10 @@ Done
 12. start application error 
 - Solved firstwhere or null
 DONE
+
+5. Create checkin button
+Done
+
+10. change schemas for x code
+done
+

@@ -33,8 +33,8 @@ class ParticipatingGameRooms extends StatelessWidget {
                     height: 8,
                   ),
                   GestureDetector(
-                    onTap: (){
-                      gameRoomController.checkInAllGames();
+                    onTap: () {
+                      gameRoomController.checkInAllGames(context);
                     },
                     child: const GameButton(
                       header: 'Check In',

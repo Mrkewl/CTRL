@@ -87,7 +87,7 @@ class TopUpButton extends StatelessWidget {
                     ),
                   ));
           if (userDecision == true) {
-            authenticationController.addBalance(amount);
+            authenticationController.topUp(amount);
           }
         },
         style: ButtonStyle(
