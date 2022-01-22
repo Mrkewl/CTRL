@@ -6,6 +6,8 @@ DONE
 
 3. game updating every week loss<can use a stop gap with date time now>
 
+18. solving the money issue in compartment after joining games
+
 4. put another if else on distribution method so that if user with 0 workout they 
 do not get part of the distribution
 
@@ -18,14 +20,12 @@ do not get part of the distribution
 
 
 
-13. profile page registration issue. profile picture not refreshing
-
 15.  To deduct and set aside money invested in game
 to not reflect wallet balance immediately until game is done
 
-16. loading button
 
 17. apple loggin
+and loading
 
 
 
@@ -44,7 +44,8 @@ DONE TASK
 1.profile picture not showing up properly, i think the defult url is overwritting it
 - no, its not overwritting but it did not update document 
 
-
+16. loading button
+Done
 8. log out - done
 DONE
 
@@ -64,3 +65,5 @@ Done
 10. change schemas for x code
 done
 
+13. profile page registration issue. profile picture not refreshing
+done
