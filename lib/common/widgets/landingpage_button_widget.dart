@@ -2,6 +2,7 @@
 import 'dart:ui';
 
 import 'package:ctrl_app/common/colorpalette.dart';
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +15,7 @@ class PurpleMainButtonWidget extends StatelessWidget {
   }) : super(key: key);
 final String text;
 final AuthenticationController authenticationController = AuthenticationController.to;
+final AllAnimationController allAnimationController = AllAnimationController.to;
   @override
   Widget build(BuildContext context) {
     return Stack(alignment: Alignment.center, children: [
@@ -65,7 +67,7 @@ final AuthenticationController authenticationController = AuthenticationControll
                 ),
               ),
               child:  Center(
-                  child:Obx(()=> authenticationController.loadingIndicatorForRegistrationLogin.value == false? Text(
+                  child:Obx(()=> allAnimationController.loadingIndicatorForRegistrationLogin.value == false? Text(
                text,
                 style:
                     const TextStyle(color: ColorPalette.snow, fontSize: 20),

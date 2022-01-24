@@ -1,6 +1,7 @@
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/common/widgets/landingpage_button_widget.dart';
 import 'package:ctrl_app/common/widgets/registrationtextfield_widget.dart';
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/screens/home/home.dart';
@@ -15,6 +16,7 @@ class RegisterInformation extends StatelessWidget {
   final AuthenticationController authenticationController =
       AuthenticationController.to;
   final GameRoomController gameRoomController = GameRoomController.to;
+      final AllAnimationController allAnimationController = AllAnimationController.to;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +73,11 @@ class RegisterInformation extends StatelessWidget {
                     ),
                     GestureDetector(
                         onTap: () async {
-                          authenticationController
+                          allAnimationController
                               .loadingIndicatorForProfileUpload.value = true;
                           await authenticationController
                               .uploadImageToFirebase();
-                                authenticationController
+                                allAnimationController
                               .loadingIndicatorForProfileUpload.value = false;
                         },
                         child:
@@ -84,7 +86,7 @@ class RegisterInformation extends StatelessWidget {
                     Center(
                       child: GestureDetector(
                           onTap: () async {
-                            authenticationController
+                            allAnimationController
                                 .loadingIndicatorForRegistrationLogin.value = true;
                             if (DateTime.now().year -
                                     DateFormat('dd-MM-yyyy')
@@ -101,13 +103,13 @@ class RegisterInformation extends StatelessWidget {
                                     context)) {
                               await gameRoomController.controllerSetUp(
                                   authenticationController.user.value);
-                              authenticationController
+                              allAnimationController
                                   .loadingIndicatorForRegistrationLogin
                                   .value = false;
 
                               Get.to(Home());
                             }
-                            authenticationController
+                            allAnimationController
                                 .loadingIndicatorForRegistrationLogin.value = false;
                           },
                           child: PurpleMainButtonWidget(text: 'Register')),

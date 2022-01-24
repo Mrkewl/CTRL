@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/common/widgets/landingpage_button_widget.dart';
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/screens/registration/register_information_page.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class Registration extends StatelessWidget {
   Registration({Key? key}) : super(key: key);
   final AuthenticationController authenticationController =
       AuthenticationController.to;
+      final AllAnimationController allAnimationController = AllAnimationController.to;
 
   @override
   Widget build(BuildContext context) {
@@ -91,13 +93,13 @@ class Registration extends StatelessWidget {
                 GestureDetector(
                     onTap: () async {
                       try {
-                      authenticationController.loadingIndicatorForRegistrationLogin.value = true;
+                      allAnimationController.loadingIndicatorForRegistrationLogin.value = true;
                         if (await authenticationController
                             .validationCheckRegistration(context)) {
-                           authenticationController.loadingIndicatorForRegistrationLogin.value = false;
+                           allAnimationController.loadingIndicatorForRegistrationLogin.value = false;
                           Get.to(RegisterInformation());
                         }
-                         authenticationController.loadingIndicatorForRegistrationLogin.value = false;
+                         allAnimationController.loadingIndicatorForRegistrationLogin.value = false;
                       } catch (e) {
                         log(e.toString());
                       }

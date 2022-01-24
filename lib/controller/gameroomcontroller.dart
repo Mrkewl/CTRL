@@ -197,36 +197,117 @@ class GameRoomController extends GetxController {
 
   Future<void> distributeLostAmountToParticipants() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
-      await clearAllEarnedAmount(gameRoom);
+      //*Clear all descripencies
+      clearEarnedAmount(gameRoom);
+      for (int week = 0; week < gameRoom.commitmentPeriod!; week++) {
+        final List<ParticipantModel> eligibleParticipant = gameRoom
+            .participants!
+            .where(
+                (element) => element.gameWeekModel[week].workoutDays.isNotEmpty)
+            .toList();
+        log('week: $week');
+        log('Eligible participant$eligibleParticipant');
+        final List<ParticipantModel> inEligibleParticipant = gameRoom
+            .participants!
+            .where((element) => element.gameWeekModel[week].workoutDays.isEmpty)
+            .toList();
+        log('inEligibleParticipant participant$inEligibleParticipant');
 
-      ///TODO to write method to clear all earned this week first.
-      ///*This method will calculate all weeks for the game room to distribute
-      for (final ParticipantModel participant1 in gameRoom.participants!) {
-        int count = 0;
-        for (final GameWeekModel gameWeek in participant1.gameWeekModel) {
-          log('----------------');
-          log(participant1.email);
-          log('Loss this week');
-          log(gameWeek.lostThisWeek.toString());
-          for (final ParticipantModel participant2 in gameRoom.participants!) {
-            if (participant1 != participant2) {
-              log(participant2.email);
-              final double formulationOfDistribution = gameWeek.lostThisWeek *
-                  participant2.commitmentAmountPerWeek /
-                  (await totalAmountOfUnits(gameRoom) -
-                      participant1.commitmentAmountPerWeek);
-              log('earned' + 'week:' + count.toString());
-              log(formulationOfDistribution.toString());
-              participant2.gameWeekModel[count].earnedThisweek =
-                  participant2.gameWeekModel[count].earnedThisweek +
-                      formulationOfDistribution;
+        //* The first distribution model plus error handling check
+        if (eligibleParticipant.isEmpty) {
+          log('There is no eligible participant');
+        } else if (eligibleParticipant.length == 1) {
+          log('There is only 1 eligible particpant');
+          eligibleParticipant.first.gameWeekModel[week].earnedThisweek =
+              gameRoom.buyInAmount! /
+                  gameRoom.commitmentPeriod! *
+                  inEligibleParticipant.length;
+        } else if (eligibleParticipant.length > 1) {
+          //* distribute with distribution method 1st step
+          for (final ParticipantModel participant1 in eligibleParticipant) {
+            for (final ParticipantModel participant2 in eligibleParticipant) {
+              if (participant1 != participant2) {
+                log(participant2.email);
+                final double formulationOfDistribution = participant1
+                        .gameWeekModel[week].lostThisWeek *
+                    participant2.commitmentAmountPerWeek /
+                    (calculateAllEligibleParticipantUnits(eligibleParticipant) -
+                        participant1.commitmentAmountPerWeek);
+                log('earned' + 'week:' + week.toString());
+                log(formulationOfDistribution.toString());
+                participant2.gameWeekModel[week].earnedThisweek =
+                    participant2.gameWeekModel[week].earnedThisweek +
+                        formulationOfDistribution;
+              }
             }
+            //* 2nd step distribute all not eligible into this
+            for (final ParticipantModel participant in eligibleParticipant) {
+              participant.gameWeekModel[week].earnedThisweek =
+                  participant.gameWeekModel[week].earnedThisweek +
+                      gameRoom.buyInAmount! /
+                          gameRoom.commitmentPeriod! *
+                          inEligibleParticipant.length /
+                          calculateAllEligibleParticipantUnits(
+                              eligibleParticipant) *
+                          participant.commitmentAmountPerWeek;
+            }
+            //* All ineligible participant 0
           }
-          count++;
         }
       }
     }
   }
+
+  void clearEarnedAmount(GameRoomModel gameRoom) {
+    for (final ParticipantModel participant in gameRoom.participants!) {
+      for (final GameWeekModel gameWeek in participant.gameWeekModel) {
+        gameWeek.earnedThisweek = 0;
+      }
+    }
+  }
+
+  int calculateAllEligibleParticipantUnits(
+      final List<ParticipantModel> partcipants) {
+    int totalUnits = 0;
+    for (final ParticipantModel participant in partcipants) {
+      totalUnits = totalUnits + participant.commitmentAmountPerWeek;
+    }
+
+    return totalUnits;
+  }
+
+  //   Future<void> distributeLostAmountToParticipants() async {
+  //   for (final GameRoomModel gameRoom in gameRoomList) {
+  //     await clearAllEarnedAmount(gameRoom);
+
+  //     ///TODO to write method to clear all earned this week first.
+  //     ///*This method will calculate all weeks for the game room to distribute
+  //     for (final ParticipantModel participant1 in gameRoom.participants!) {
+  //       int count = 0;
+  //       for (final GameWeekModel gameWeek in participant1.gameWeekModel) {
+  //         log('----------------');
+  //         log(participant1.email);
+  //         log('Loss this week');
+  //         log(gameWeek.lostThisWeek.toString());
+  //         for (final ParticipantModel participant2 in gameRoom.participants!) {
+  //           if (participant1 != participant2) {
+  //             log(participant2.email);
+  //             final double formulationOfDistribution = gameWeek.lostThisWeek *
+  //                 participant2.commitmentAmountPerWeek /
+  //                 (await totalAmountOfUnits(gameRoom) -
+  //                     participant1.commitmentAmountPerWeek);
+  //             log('earned' + 'week:' + count.toString());
+  //             log(formulationOfDistribution.toString());
+  //             participant2.gameWeekModel[count].earnedThisweek =
+  //                 participant2.gameWeekModel[count].earnedThisweek +
+  //                     formulationOfDistribution;
+  //           }
+  //         }
+  //         count++;
+  //       }
+  //     }
+  //   }
+  // }
 
   Future<void> clearAllEarnedAmount(GameRoomModel gameRoom) async {
     for (final ParticipantModel participant in gameRoom.participants!) {
@@ -466,28 +547,43 @@ class GameRoomController extends GetxController {
       return;
     } else {
       try {
-        if (gameRoom.participants!
-            .where((element) => element.email == user.email)
-            .isEmpty) {
-          gameRoom.participants!.add(ParticipantModel(
-              lostAmountPerUnit: gameRoom.buyInAmount! /
-                  (playerCommitment * gameRoom.commitmentPeriod!),
-              userName: user.userName,
-              commitmentAmountInChallenge:
-                  playerCommitment * gameRoom.commitmentPeriod!,
-              commitmentAmountPerWeek: playerCommitment,
-              currentAmountEarned: 0,
-              currentAmountHolding: gameRoom.buyInAmount,
-              currentAmountLost: 0,
-              email: user.email,
-              photoUrl:
-                  user.avatarImage.isEmpty ? user.photoUrl : user.avatarImage,
-              gameWeekModel: createGameWeekModels(gameRoom)));
-          await gameRooms
-              .doc(gameRoom.documentId)
-              .set(gameRoom.toMap(), SetOptions(merge: true));
+        if (user.walletAmount < gameRoom.buyInAmount!) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) => const Dialog(
+                    backgroundColor: ColorPalette.black,
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'Your current balance is not enough, Please Top Up',
+                        style: TextStyle(color: ColorPalette.snow),
+                      ),
+                    ),
+                  ));
         } else {
-          log('User is already there');
+          if (gameRoom.participants!
+              .where((element) => element.email == user.email)
+              .isEmpty) {
+            gameRoom.participants!.add(ParticipantModel(
+                lostAmountPerUnit: gameRoom.buyInAmount! /
+                    (playerCommitment * gameRoom.commitmentPeriod!),
+                userName: user.userName,
+                commitmentAmountInChallenge:
+                    playerCommitment * gameRoom.commitmentPeriod!,
+                commitmentAmountPerWeek: playerCommitment,
+                currentAmountEarned: 0,
+                currentAmountHolding: gameRoom.buyInAmount,
+                currentAmountLost: 0,
+                email: user.email,
+                photoUrl:
+                    user.avatarImage.isEmpty ? user.photoUrl : user.avatarImage,
+                gameWeekModel: createGameWeekModels(gameRoom)));
+            await gameRooms
+                .doc(gameRoom.documentId)
+                .set(gameRoom.toMap(), SetOptions(merge: true));
+          } else {
+            log('User is already there');
+          }
         }
       } catch (e) {
         log(e.toString());

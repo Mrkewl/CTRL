@@ -29,10 +29,15 @@ class GameRoom extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: ColorPalette.black,
         title: const Center(child: Text('Game Room')),
-        actions: const [
-          Icon(
-            Icons.message,
-            color: ColorPalette.brightGreen,
+        actions:  [
+          GestureDetector(
+            onTap: (){
+              gameRoomController.distributeLostAmountToParticipants();
+            },
+            child: const Icon(
+              Icons.message,
+              color: ColorPalette.brightGreen,
+            ),
           )
         ],
       ),

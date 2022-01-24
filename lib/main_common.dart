@@ -1,3 +1,4 @@
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/controller/dashboardcontroller.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
@@ -16,6 +17,7 @@ Future<void> mainCommon(FlavorConfig config) async {
   Get.put(HomeController());
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Get.put(AllAnimationController());
   Get.put(AuthenticationController());
   final AuthenticationController authenticationController =
       AuthenticationController.to;

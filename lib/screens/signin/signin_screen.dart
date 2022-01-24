@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/common/widgets/landingpage_button_widget.dart';
 import 'package:ctrl_app/common/widgets/registrationtextfield_widget.dart';
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/screens/home/home.dart';
@@ -16,6 +17,7 @@ class SignIn extends StatelessWidget {
   final AuthenticationController authenticationController =
       AuthenticationController.to;
   final GameRoomController gameRoomController = GameRoomController.to;
+      final AllAnimationController allAnimationController = AllAnimationController.to;
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +86,7 @@ class SignIn extends StatelessWidget {
                 ),
                 GestureDetector(
                     onTap: () async {
-                      authenticationController.loadingIndicatorForRegistrationLogin.value = true;
+                      allAnimationController.loadingIndicatorForRegistrationLogin.value = true;
 
                       if (await authenticationController
                           .signInWithEmail(context)) {
@@ -92,7 +94,7 @@ class SignIn extends StatelessWidget {
                             gameRoomController.gameRoomList);
                         await gameRoomController.controllerSetUp(
                             authenticationController.user.value);
-                        authenticationController.loadingIndicatorForRegistrationLogin.value = false;
+                        allAnimationController.loadingIndicatorForRegistrationLogin.value = false;
 
                         Get.to(Home());
                       }

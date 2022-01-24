@@ -1,4 +1,5 @@
 import 'package:ctrl_app/common/colorpalette.dart';
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/screens/profile_page/profile_page.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ class EditProfileScreen extends StatelessWidget {
   final AuthenticationController authenticationController =
       AuthenticationController.to;
   final TextEditingController missionStatement = TextEditingController();
+  final AllAnimationController allAnimationController = AllAnimationController.to;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,23 +73,23 @@ class EditProfileScreen extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          authenticationController
+                          allAnimationController
                               .loadingIndicatorForProfileUpload.value = true;
                           await authenticationController
                               .uploadImageToFirebase();
-                          authenticationController
+                          allAnimationController
                               .loadingIndicatorForProfileUpload.value = false;
                         },
                         child: Obx(() => CircleAvatar(
                               backgroundColor: ColorPalette.black,
                               minRadius: 40,
                               maxRadius: 40,
-                              backgroundImage: !authenticationController
+                              backgroundImage: !allAnimationController
                                       .loadingIndicatorForProfileUpload.value
                                   ? NetworkImage(
                                       authenticationController.profilePicture)
                                   : null,
-                              child: authenticationController
+                              child: allAnimationController
                                       .loadingIndicatorForProfileUpload.value
                                   ? const CircularProgressIndicator()
                                   : null,

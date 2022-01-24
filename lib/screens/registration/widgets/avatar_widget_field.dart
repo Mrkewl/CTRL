@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:ctrl_app/common/colorpalette.dart';
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ class AvatarFieldWidget extends StatelessWidget {
   }) : super(key: key);
   final AuthenticationController authenticationController =
       AuthenticationController.to;
+      final AllAnimationController allAnimationController = AllAnimationController.to;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -55,7 +57,7 @@ class AvatarFieldWidget extends StatelessWidget {
                     borderRadius: const BorderRadius.all(Radius.circular(360)),
                   ),
                   child: Obx(
-                    () => !authenticationController
+                    () => !allAnimationController
                             .loadingIndicatorForProfileUpload.value
                         ? authenticationController.avatarImage.value.isEmpty
                             ? Padding(

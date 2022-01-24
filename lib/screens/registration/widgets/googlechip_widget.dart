@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:ctrl_app/common/colorpalette.dart';
+import 'package:ctrl_app/controller/all_animation_controller.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/screens/home/home.dart';
@@ -16,12 +17,13 @@ class GoogleChip extends StatelessWidget {
   final AuthenticationController authenticationController =
       AuthenticationController.to;
   final GameRoomController gameRoomController = GameRoomController.to;
+      final AllAnimationController allAnimationController = AllAnimationController.to;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        authenticationController.loadingIndicatorForRegistrationLogin.value =
+        allAnimationController.loadingIndicatorForGoogle.value =
             true;
         final googleSignupResults googleSignUpResults =
             await authenticationController.signInSignUpWithGoogle(context);
@@ -30,11 +32,11 @@ class GoogleChip extends StatelessWidget {
           gameRoomController
               .controllerSetUp(authenticationController.user.value);
           Get.to(Home());
-          authenticationController.loadingIndicatorForRegistrationLogin.value =
+          allAnimationController.loadingIndicatorForRegistrationLogin.value =
               false;
         } else if (googleSignUpResults == googleSignupResults.register) {
           Get.to(RegisterInformation());
-          authenticationController.loadingIndicatorForRegistrationLogin.value =
+          allAnimationController.loadingIndicatorForGoogle.value =
               false;
         }
       },
@@ -81,8 +83,8 @@ class GoogleChip extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Obx(
-                      () => authenticationController
-                              .loadingIndicatorForRegistrationLogin.value
+                      () => allAnimationController
+                              .loadingIndicatorForGoogle.value
                           ? const CircularProgressIndicator()
                           : Image.asset(
                               'assets/logo/google.png',

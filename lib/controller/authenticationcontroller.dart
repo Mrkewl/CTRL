@@ -33,8 +33,7 @@ class AuthenticationController extends GetxController {
   RxString photoUrl = ''.obs;
   RxString dateCreated = ''.obs;
   RxBool registrationInformation = false.obs;
-  RxBool loadingIndicatorForRegistrationLogin = false.obs;
-  RxBool loadingIndicatorForProfileUpload = false.obs;
+
   RxString missionStatement = ''.obs;
 
   RxString avatarImage = ''.obs;
