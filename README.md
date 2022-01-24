@@ -2,35 +2,38 @@ Problems left:
 DONE
 
 2. Architecture is not properly done, probably pass the user into the model early on and also passing variable either during constructor or all in the widget itself
-
+on it
 
 3. game updating every week loss<can use a stop gap with date time now>
 
-18. solving the money issue in compartment after joining games
 
-4. put another if else on distribution method so that if user with 0 workout they 
-do not get part of the distribution
 
 
 6. Create custom loggin for secret code 
 
-7. Deduction of cash
 
 9. Change launcher icon
 
 
+18. solving the money issue in compartment after joining games
 
 15.  To deduct and set aside money invested in game
-to not reflect wallet balance immediately until game is done
+to not reflect wallet balance immediately until game is done 
 
 
 17. apple loggin
 and loading
 
 
+19. Overwritting of earnings and other fields
 
 
 
+
+Need to test
+
+4. put another if else on distribution method so that if user with 0 workout they 
+do not get part of the distribution
 
 
 
@@ -67,3 +70,6 @@ done
 
 13. profile page registration issue. profile picture not refreshing
 done
+
+7. Deduction of cash
+Done
