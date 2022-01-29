@@ -29,11 +29,8 @@ and loading
 
 
 
-
-Need to test
-
-4. put another if else on distribution method so that if user with 0 workout they 
-do not get part of the distribution
+20. Update state after joinin
+21. add dialog that they have already joined
 
 
 
@@ -73,3 +70,7 @@ done
 
 7. Deduction of cash
 Done
+
+Done
+4. put another if else on distribution method so that if user with 0 workout they 
+do not get part of the distribution

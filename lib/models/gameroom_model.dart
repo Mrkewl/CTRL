@@ -6,18 +6,20 @@ import 'package:flutter/foundation.dart';
 class GameRoomModel {
   // ignore: sort_constructors_first
   GameRoomModel(
-      {this.name,
-      this.id,
-      this.participants,
-      this.potAmount,
-      this.buyInAmount,
-      this.started,
-      this.startDate,
-      this.endDate,
-      this.commitmentPeriod,
-      this.gameCreatorEmail,
-      this.roomLimit,
-      this.documentId});
+      {required this.name,
+      required this.id,
+      required this.participants,
+      required this.potAmount,
+      required this.buyInAmount,
+      required this.started,
+      required this.startDate,
+      required this.endDate,
+      required this.commitmentPeriod,
+      required this.gameCreatorEmail,
+      required this.roomLimit,
+      this.documentId,
+      required this.ctrlEarnings,
+      required this.ended});
   String? name;
   String? id;
   List<ParticipantModel>? participants;
@@ -30,7 +32,8 @@ class GameRoomModel {
   int? roomLimit;
   String? documentId;
   int? commitmentPeriod;
- 
+  double? ctrlEarnings;
+  bool? ended;
 
   GameRoomModel copyWith({
     String? name,
@@ -45,6 +48,8 @@ class GameRoomModel {
     int? roomLimit,
     int? commitmentPeriod,
     String? documentId,
+    double? ctrlEarnings,
+    bool? ended,
   }) {
     return GameRoomModel(
         name: name ?? this.name,
@@ -58,7 +63,9 @@ class GameRoomModel {
         endDate: endDate ?? this.endDate,
         gameCreatorEmail: gameCreatorEmail ?? this.gameCreatorEmail,
         roomLimit: roomLimit ?? this.roomLimit,
-        commitmentPeriod: commitmentPeriod ?? this.commitmentPeriod);
+        commitmentPeriod: commitmentPeriod ?? this.commitmentPeriod,
+        ctrlEarnings: ctrlEarnings ?? this.ctrlEarnings,
+        ended: ended ?? this.ended);
   }
 
   Map<String, dynamic> toMap() {
@@ -75,28 +82,31 @@ class GameRoomModel {
       'roomLimit': roomLimit,
       'documentId': documentId,
       'participants': participants?.map((x) => x.toMap()).toList(),
+      'ctrlEarnings': ctrlEarnings,
+      'ended': ended,
     };
   }
 
   // ignore: sort_constructors_first
   factory GameRoomModel.fromMap(Map<String, dynamic> map) {
     return GameRoomModel(
-      name: map['name'],
-      id: map['id'],
-      potAmount: map['potAmount']?.toDouble(),
-      buyInAmount: map['buyInAmount']?.toDouble(),
-      started: map['started'],
-      startDate: map['startDate'] ?? '',
-      endDate: map['endDate'] ?? '',
-      commitmentPeriod: map['commitmentPeriod'] ?? 0,
-      gameCreatorEmail: map['gameCreatorEmail'] ?? '',
-      roomLimit: map['roomLimit'] ?? 0,
-      documentId : map['documentId'] ?? '',
-      participants: map['participants'] != null
-          ? List<ParticipantModel>.from(
-              map['participants']?.map((x) => ParticipantModel.fromMap(x)))
-          : null,
-    );
+        name: map['name'],
+        id: map['id'],
+        potAmount: map['potAmount']?.toDouble(),
+        buyInAmount: map['buyInAmount']?.toDouble(),
+        started: map['started'],
+        startDate: map['startDate'] ?? '',
+        endDate: map['endDate'] ?? '',
+        commitmentPeriod: map['commitmentPeriod'] ?? 0,
+        gameCreatorEmail: map['gameCreatorEmail'] ?? '',
+        roomLimit: map['roomLimit'] ?? 0,
+        documentId: map['documentId'] ?? '',
+        ctrlEarnings: map['ctrlEarnings'] ?? 0.0,
+        participants: map['participants'] != null
+            ? List<ParticipantModel>.from(
+                map['participants']?.map((x) => ParticipantModel.fromMap(x)))
+            : null,
+        ended: map['ended']);
   }
 
   String toJson() => json.encode(toMap());
@@ -107,7 +117,7 @@ class GameRoomModel {
 
   @override
   String toString() {
-    return 'GameRoomModel(name: $name, id: $id, participants: $participants, potAmount: $potAmount, buyInAmount: $buyInAmount, started: $started, startDate: $startDate, endDate: $endDate, commitmentPeriod: $commitmentPeriod , gameCreatorEmail: $gameCreatorEmail , roomLimit: $roomLimit , documentId: $documentId)';
+    return 'GameRoomModel(name: $name, id: $id, participants: $participants, potAmount: $potAmount, buyInAmount: $buyInAmount, started: $started, startDate: $startDate, endDate: $endDate, commitmentPeriod: $commitmentPeriod , gameCreatorEmail: $gameCreatorEmail , roomLimit: $roomLimit , documentId: $documentId, ctrlEarnings: $ctrlEarnings, ended: $ended)';
   }
 
   @override
@@ -126,7 +136,9 @@ class GameRoomModel {
         other.documentId == documentId &&
         other.gameCreatorEmail == gameCreatorEmail &&
         other.roomLimit == roomLimit &&
-        other.commitmentPeriod == commitmentPeriod;
+        other.commitmentPeriod == commitmentPeriod &&
+        other.ctrlEarnings == ctrlEarnings &&
+        other.ended == ended;
   }
 
   @override
@@ -142,6 +154,8 @@ class GameRoomModel {
         commitmentPeriod.hashCode ^
         roomLimit.hashCode ^
         gameCreatorEmail.hashCode ^
-        endDate.hashCode;
+        endDate.hashCode ^
+        ctrlEarnings.hashCode ^
+        ended.hashCode;
   }
 }

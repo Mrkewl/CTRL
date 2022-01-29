@@ -215,9 +215,15 @@ class GameRoomController extends GetxController {
 
         //* The first distribution model plus error handling check
         if (eligibleParticipant.isEmpty) {
+          gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
+              gameRoom.buyInAmount! /
+                  gameRoom.commitmentPeriod! *
+                  inEligibleParticipant.length;
           log('There is no eligible participant');
         } else if (eligibleParticipant.length == 1) {
           log('There is only 1 eligible particpant');
+          gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
+              eligibleParticipant.first.gameWeekModel[week].lostThisWeek;
           eligibleParticipant.first.gameWeekModel[week].earnedThisweek =
               gameRoom.buyInAmount! /
                   gameRoom.commitmentPeriod! *
@@ -240,19 +246,18 @@ class GameRoomController extends GetxController {
                         formulationOfDistribution;
               }
             }
-            //* 2nd step distribute all not eligible into this
-            for (final ParticipantModel participant in eligibleParticipant) {
-              participant.gameWeekModel[week].earnedThisweek =
-                  participant.gameWeekModel[week].earnedThisweek +
-                      gameRoom.buyInAmount! /
-                          gameRoom.commitmentPeriod! *
-                          inEligibleParticipant.length /
-                          calculateAllEligibleParticipantUnits(
-                              eligibleParticipant) *
-                          participant.commitmentAmountPerWeek;
-            }
-            //* All ineligible participant 0
           }
+          //* 2nd step distribute all not eligible into this
+          for (final ParticipantModel participant in eligibleParticipant) {
+            participant.gameWeekModel[week].earnedThisweek = participant
+                    .gameWeekModel[week].earnedThisweek +
+                gameRoom.buyInAmount! /
+                    gameRoom.commitmentPeriod! *
+                    inEligibleParticipant.length /
+                    calculateAllEligibleParticipantUnits(eligibleParticipant) *
+                    participant.commitmentAmountPerWeek;
+          }
+          //* All ineligible participant 0
         }
       }
     }
@@ -275,39 +280,6 @@ class GameRoomController extends GetxController {
 
     return totalUnits;
   }
-
-  //   Future<void> distributeLostAmountToParticipants() async {
-  //   for (final GameRoomModel gameRoom in gameRoomList) {
-  //     await clearAllEarnedAmount(gameRoom);
-
-  //     ///TODO to write method to clear all earned this week first.
-  //     ///*This method will calculate all weeks for the game room to distribute
-  //     for (final ParticipantModel participant1 in gameRoom.participants!) {
-  //       int count = 0;
-  //       for (final GameWeekModel gameWeek in participant1.gameWeekModel) {
-  //         log('----------------');
-  //         log(participant1.email);
-  //         log('Loss this week');
-  //         log(gameWeek.lostThisWeek.toString());
-  //         for (final ParticipantModel participant2 in gameRoom.participants!) {
-  //           if (participant1 != participant2) {
-  //             log(participant2.email);
-  //             final double formulationOfDistribution = gameWeek.lostThisWeek *
-  //                 participant2.commitmentAmountPerWeek /
-  //                 (await totalAmountOfUnits(gameRoom) -
-  //                     participant1.commitmentAmountPerWeek);
-  //             log('earned' + 'week:' + count.toString());
-  //             log(formulationOfDistribution.toString());
-  //             participant2.gameWeekModel[count].earnedThisweek =
-  //                 participant2.gameWeekModel[count].earnedThisweek +
-  //                     formulationOfDistribution;
-  //           }
-  //         }
-  //         count++;
-  //       }
-  //     }
-  //   }
-  // }
 
   Future<void> clearAllEarnedAmount(GameRoomModel gameRoom) async {
     for (final ParticipantModel participant in gameRoom.participants!) {
@@ -353,14 +325,24 @@ class GameRoomController extends GetxController {
             // )
           ],
           potAmount: 0,
-          startDate: DateFormat('dd-MM-yyyy').format(DateTime.now()).toString(),
+          startDate: DateFormat('dd-MM-yyyy')
+              .format(createGame.value.startPeriod!)
+              .toString(),
           started: false,
           commitmentPeriod: createGame.value.commitmentPeriod,
           gameCreatorEmail: createGame.value.gameCreatorEmail,
           roomLimit: createGame.value.roomLimit,
+          ctrlEarnings: 0,
+          ended: false,
         );
-
         await gameRooms.doc().set(createNewGameRoom.toMap());
+        await showDialog(
+            context: context,
+            builder: (context) {
+              return const Dialog(
+                child: Text('Room is created'),
+              );
+            });
         await retriveAndAddIdToCollection();
         gameRoomList.clear();
         await getAllGameRoom();
@@ -564,6 +546,7 @@ class GameRoomController extends GetxController {
           if (gameRoom.participants!
               .where((element) => element.email == user.email)
               .isEmpty) {
+            user.walletAmount = user.walletAmount - gameRoom.buyInAmount!;
             gameRoom.participants!.add(ParticipantModel(
                 lostAmountPerUnit: gameRoom.buyInAmount! /
                     (playerCommitment * gameRoom.commitmentPeriod!),
@@ -581,6 +564,8 @@ class GameRoomController extends GetxController {
             await gameRooms
                 .doc(gameRoom.documentId)
                 .set(gameRoom.toMap(), SetOptions(merge: true));
+            authenticationController.updateDocument();
+            gameRoomList.refresh();
           } else {
             log('User is already there');
           }

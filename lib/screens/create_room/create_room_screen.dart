@@ -10,7 +10,8 @@ import 'widgets/dropdowntile.dart';
 class CreateRoomScreen extends StatelessWidget {
   CreateRoomScreen({Key? key}) : super(key: key);
   final GameRoomController gameRoomController = GameRoomController.to;
-  final AuthenticationController authenticationController = AuthenticationController.to;
+  final AuthenticationController authenticationController =
+      AuthenticationController.to;
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +84,11 @@ class CreateRoomScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 GestureDetector(
-                    onTap: ()async {
-                    gameRoomController.createGame.value.gameCreatorEmail = authenticationController.user.value.email;
+                    onTap: () async {
+                      gameRoomController.createGame.value.gameCreatorEmail =
+                          authenticationController.user.value.email;
                       gameRoomController.createGameRoom(context);
+                      Navigator.pop(context);
                     },
                     child: PurpleMainButtonWidget(text: 'Continue')),
                 const SizedBox(

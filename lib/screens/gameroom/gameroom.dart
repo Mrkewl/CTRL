@@ -29,9 +29,9 @@ class GameRoom extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: ColorPalette.black,
         title: const Center(child: Text('Game Room')),
-        actions:  [
+        actions: [
           GestureDetector(
-            onTap: (){
+            onTap: () {
               gameRoomController.distributeLostAmountToParticipants();
             },
             child: const Icon(
@@ -90,8 +90,15 @@ class GameRoom extends StatelessWidget {
                   participant: gameRoomController.getParticipantData(
                       gameRoom, authenticationController.user.value),
                   gameRoom: gameRoom,
-                  totalWorkoutLeft:gameRoomController.getParticipantData(
-                      gameRoom, authenticationController.user.value).commitmentAmountPerWeek - gameRoomController.getGameWeek(gameRoom, authenticationController.user.value).workoutDays.length,
+                  totalWorkoutLeft: gameRoomController
+                          .getParticipantData(
+                              gameRoom, authenticationController.user.value)
+                          .commitmentAmountPerWeek -
+                      gameRoomController
+                          .getGameWeek(
+                              gameRoom, authenticationController.user.value)
+                          .workoutDays
+                          .length,
                 ),
               if (gameRoom.started == true)
                 Obx(
@@ -124,8 +131,11 @@ class GameRoom extends StatelessWidget {
                         ),
                       ],
                     ),
-                    ListView.builder(
-                        itemCount: gameRoom.participants!.length,
+                    Obx(() => ListView.builder(
+                        itemCount: gameRoomController.gameRoomList
+                            .firstWhere((p0) => p0.name == gameRoom.name)
+                            .participants!
+                            .length,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) => ParticipantCard(
@@ -140,7 +150,7 @@ class GameRoom extends StatelessWidget {
                                 .toString(),
                             commitment: gameRoom
                                 .participants![index].commitmentAmountPerWeek
-                                .toString()))
+                                .toString())))
                   ],
                 ),
               ),
