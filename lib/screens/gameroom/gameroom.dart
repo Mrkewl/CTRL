@@ -64,11 +64,18 @@ class GameRoom extends StatelessWidget {
                           style:
                               TextStyle(color: ColorPalette.snow, fontSize: 16),
                         ),
-                        Text(
-                          gameRoom.participants!.length.toString(),
-                          style: const TextStyle(
-                              color: ColorPalette.snow, fontSize: 24),
-                        ),
+                        Obx(
+                          () => Text(
+                            gameRoomController.gameRoomList
+                                .firstWhere((p0) =>
+                                    p0.documentId == gameRoom.documentId)
+                                .participants!
+                                .length
+                                .toString(),
+                            style: const TextStyle(
+                                color: ColorPalette.snow, fontSize: 24),
+                          ),
+                        )
                       ],
                     ),
                   ],
@@ -133,7 +140,7 @@ class GameRoom extends StatelessWidget {
                     ),
                     Obx(() => ListView.builder(
                         itemCount: gameRoomController.gameRoomList
-                            .firstWhere((p0) => p0.name == gameRoom.name)
+                            .firstWhere((p0) => p0.documentId == gameRoom.documentId)
                             .participants!
                             .length,
                         shrinkWrap: true,

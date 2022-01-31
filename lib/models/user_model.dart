@@ -148,7 +148,7 @@ class UserModel {
       totalEarnings: map['totalEarnings'] ?? 0.0,
       totalGamesParticipating: map['totalGamesParticipating']?? 0,
       totalAmountLost: map['totalAmountLost'] ?? 0.0,
-      totalAmountTopUp: map['totalAmountTopUp'] ?? 0.0,
+      totalAmountTopUp:  map['totalAmountTopUp'] ?? 0.0,
     );
   }
 

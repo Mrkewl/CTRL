@@ -27,6 +27,10 @@ and loading
 
 19. Overwritting of earnings and other fields
 
+21. Error handling for participant amount in game room(it does not limit)
+
+22. Wallet Top up Overwrites things 
+
 
 
 20. Update state after joinin

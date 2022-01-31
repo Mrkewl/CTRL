@@ -32,7 +32,9 @@ class GameRoomController extends GetxController {
     await getAllGameRoom();
     await getParticipatingGameRooms(user);
     await triggerStartGame();
+    //* Trigger end game
     await checkMissedWorkout();
+    //* Per Week is 6 days
     await getListEachParticipantAmountLossAtEndWeek();
     await distributeLostAmountToParticipants();
     await getTotalAmountEarnedInGame();
@@ -392,11 +394,11 @@ class GameRoomController extends GetxController {
     for (int i = 0; i < gameRoom.commitmentPeriod!; i++) {
       final DateTime startDate = DateFormat('dd-MM-yyyy')
           .parse(gameRoom.startDate!)
-          .add(Duration(days: i * 7));
+          .add(Duration(days:  (i*6) + i));
 
       final DateTime endDate = DateFormat('dd-MM-yyyy')
           .parse(gameRoom.startDate!)
-          .add(Duration(days: (i + 1) * 7));
+          .add(Duration(days: (i + 1) * 7 - 1));
 
       gameWeeksStructureList.add(GameWeekModel(
         workoutDays: [],
@@ -524,11 +526,11 @@ class GameRoomController extends GetxController {
       {required GameRoomModel gameRoom,
       required UserModel user,
       required BuildContext context}) async {
-    final int? playerCommitment = await chooseCommitmentAmount(context);
-    if (playerCommitment == null) {
-      return;
-    } else {
-      try {
+    try {
+      if (gameRoom.participants!
+          .where((element) => element.email == user.email)
+          .isEmpty) {
+        //* check user wallet amount
         if (user.walletAmount < gameRoom.buyInAmount!) {
           showDialog(
               context: context,
@@ -543,9 +545,10 @@ class GameRoomController extends GetxController {
                     ),
                   ));
         } else {
-          if (gameRoom.participants!
-              .where((element) => element.email == user.email)
-              .isEmpty) {
+          final int? playerCommitment = await chooseCommitmentAmount(context);
+          if (playerCommitment == null) {
+            return;
+          } else {
             user.walletAmount = user.walletAmount - gameRoom.buyInAmount!;
             gameRoom.participants!.add(ParticipantModel(
                 lostAmountPerUnit: gameRoom.buyInAmount! /
@@ -566,13 +569,25 @@ class GameRoomController extends GetxController {
                 .set(gameRoom.toMap(), SetOptions(merge: true));
             authenticationController.updateDocument();
             gameRoomList.refresh();
-          } else {
-            log('User is already there');
           }
         }
-      } catch (e) {
-        log(e.toString());
+      } else {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) => const Dialog(
+                  backgroundColor: ColorPalette.black,
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      'You have already joined the game, Please wait for it to start',
+                      style: TextStyle(color: ColorPalette.snow),
+                    ),
+                  ),
+                ));
+        log('User is already there');
       }
+    } catch (e) {
+      log(e.toString());
     }
   }
 
