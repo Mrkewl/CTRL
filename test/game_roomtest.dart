@@ -241,10 +241,10 @@ void main() {
                 earnedThisweek: 0,
                 lostThisWeek: 0,
                 workoutDays: [
-                  WorkoutDayModel(dateWorkedOut: '04-02-2022'),
-                  WorkoutDayModel(dateWorkedOut: '05-02-2022'),
-                  WorkoutDayModel(dateWorkedOut: '06-02-2022'),
-                  WorkoutDayModel(dateWorkedOut: '07-02-2022'),
+                  WorkoutDayModel(dateWorkedOut: '28-01-2022'),
+                  WorkoutDayModel(dateWorkedOut: '29-01-2022'),
+                  WorkoutDayModel(dateWorkedOut: '01-01-2022'),
+                  WorkoutDayModel(dateWorkedOut: '02-01-2022'),
                 ]),
             //* Week 2
             GameWeekModel(
@@ -429,6 +429,7 @@ void main() {
       startDate: '27-01-2022',
       started: true,
       ctrlEarnings: 0,
+      ended: false,
     );
     void clearEarnedAmount(GameRoomModel gameRoom) {
       for (final ParticipantModel participant in gameRoom.participants!) {

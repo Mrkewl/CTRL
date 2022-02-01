@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as MATH;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ctrl_app/common/colorpalette.dart';
@@ -14,6 +15,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:intl/intl.dart';
+extension Precision on double {
+  double toDoublePrecision(int fractionDigits) {
+    var mod = MATH.pow(10, fractionDigits.toDouble()).toDouble();
+    return ((this * mod).floor().toDouble() / mod);
+  }
+}
 
 class GameRoomController extends GetxController {
   static GameRoomController get to => Get.find();
@@ -28,13 +35,21 @@ class GameRoomController extends GetxController {
       FirebaseFirestore.instance.collection('gamerooms');
 
   Future<void> controllerSetUp(UserModel user) async {
+    //* clear game Rooms - checked
     await clearGameRooms();
+    //* get all game rooms - checked
     await getAllGameRoom();
+    //* get rooms that participant/user is in
     await getParticipatingGameRooms(user);
+    //* Trigger start game - Checked
     await triggerStartGame();
-    //* Trigger end game
-    await checkMissedWorkout();
+    //* Trigger end game - Checked
+    await triggerEndGame();
     //* Per Week is 6 days
+    //* Checked missed workout - checked
+    await checkMissedWorkout();
+    //! This is to only create a test on firebase
+    //  createNewGameRoomTEST();
     await getListEachParticipantAmountLossAtEndWeek();
     await distributeLostAmountToParticipants();
     await getTotalAmountEarnedInGame();
@@ -74,6 +89,20 @@ class GameRoomController extends GetxController {
     }
   }
 
+  Future<void> triggerEndGame() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      if (DateFormat('dd-MM-yyyy')
+          .parse(gameRoom.endDate!)
+          .isBefore(DateTime.now())) {
+        if (gameRoom.ended == false) {
+          gameRoom.ended = true;
+        } else {
+          return;
+        }
+      }
+    }
+  }
+
   Future<void> triggerStartGame() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       if (weekCheck(
@@ -98,11 +127,8 @@ class GameRoomController extends GetxController {
       for (final ParticipantModel participant in gameRoom.participants!) {
         for (final GameWeekModel gameWeek in participant.gameWeekModel) {
           if (DateFormat('dd-MM-yyyy')
-                  .parse(gameWeek.endDate)
-                  .isBefore(DateTime.now()) ||
-              DateFormat('dd-MM-yyyy')
-                  .parse(gameWeek.endDate)
-                  .isAtSameMomentAs(DateTime.now())) {
+              .parse(gameWeek.endDate)
+              .isBefore(DateTime.now())) {
             if (gameWeek.workoutDays.length <
                 participant.commitmentAmountPerWeek) {
               gameWeek.missedWorkoutThisWeek =
@@ -166,13 +192,18 @@ class GameRoomController extends GetxController {
     }
   }
 
+
+
+  
+
   Future<void> getCurrentAmountHolding() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       for (final ParticipantModel participant in gameRoom.participants!) {
         participant.currentAmountHolding = gameRoom.buyInAmount;
-        participant.currentAmountHolding = participant.currentAmountHolding! +
+        participant.currentAmountHolding = (participant.currentAmountHolding! +
             participant.currentAmountEarned! -
-            participant.currentAmountLost!;
+            participant.currentAmountLost!).toDoublePrecision(2);
+         
       }
     }
   }
@@ -200,6 +231,7 @@ class GameRoomController extends GetxController {
   Future<void> distributeLostAmountToParticipants() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       //*Clear all descripencies
+      gameRoom.ctrlEarnings = 0;
       clearEarnedAmount(gameRoom);
       for (int week = 0; week < gameRoom.commitmentPeriod!; week++) {
         final List<ParticipantModel> eligibleParticipant = gameRoom
@@ -394,7 +426,7 @@ class GameRoomController extends GetxController {
     for (int i = 0; i < gameRoom.commitmentPeriod!; i++) {
       final DateTime startDate = DateFormat('dd-MM-yyyy')
           .parse(gameRoom.startDate!)
-          .add(Duration(days:  (i*6) + i));
+          .add(Duration(days: (i * 6) + i));
 
       final DateTime endDate = DateFormat('dd-MM-yyyy')
           .parse(gameRoom.startDate!)
@@ -641,5 +673,429 @@ class GameRoomController extends GetxController {
                     )
                   ]),
             )));
+  }
+
+  //! Send out test game room to firebase
+  Future<void> createNewGameRoomTEST() async {
+    final GameRoomModel gameRoomModel = GameRoomModel(
+      buyInAmount: 500,
+      commitmentPeriod: 8,
+      documentId: '123456',
+      endDate: '24-03-2021',
+      gameCreatorEmail: 'Jazsleyzainal@gmail.com',
+      id: '1',
+      name: 'gameTest1',
+      participants: [
+        //* Player A
+        ParticipantModel(
+          commitmentAmountInChallenge: 16,
+          commitmentAmountPerWeek: 2,
+          currentAmountEarned: 0,
+          currentAmountHolding: 500,
+          currentAmountLost: 0,
+          email: '',
+          lostAmountPerUnit: 31.25,
+          photoUrl: '',
+          userName: 'Player A',
+          gameWeekModel: [
+            //* Week 1
+            GameWeekModel(
+                startDate: '27-01-2021',
+                endDate: '02-02-2021',
+                completedWorkoutThisWeek: 2,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '28-01-2021'),
+                  WorkoutDayModel(dateWorkedOut: '29-01-2021')
+                ]),
+            //* Week 2
+            GameWeekModel(
+                startDate: '03-02-2021',
+                endDate: '09-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 2,
+                earnedThisweek: 0,
+                lostThisWeek: 62.50,
+                workoutDays: []),
+            //* Week 3
+            GameWeekModel(
+                startDate: '10-02-2021',
+                endDate: '16-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 2,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 4
+            GameWeekModel(
+                startDate: '17-02-2021',
+                endDate: '23-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 2,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 5
+            GameWeekModel(
+                startDate: '24-02-2021',
+                endDate: '02-03-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 2,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 6
+            GameWeekModel(
+                startDate: '03-03-2021',
+                endDate: '09-03-2021',
+                completedWorkoutThisWeek: 2,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '04-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '05-03-2021')
+                ]),
+            //* Week 7
+            GameWeekModel(
+                startDate: '10-03-2021',
+                endDate: '16-03-2021',
+                completedWorkoutThisWeek: 1,
+                missedWorkoutThisWeek: 1,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [WorkoutDayModel(dateWorkedOut: '11-03-2021')]),
+            //* Week 8
+            GameWeekModel(
+                startDate: '17-03-2021',
+                endDate: '23-03-2021',
+                completedWorkoutThisWeek: 1,
+                missedWorkoutThisWeek: 1,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [WorkoutDayModel(dateWorkedOut: '18-03-2021')]),
+          ],
+        ),
+        //* Player B
+        ParticipantModel(
+          commitmentAmountInChallenge: 40,
+          commitmentAmountPerWeek: 5,
+          currentAmountEarned: 0,
+          currentAmountHolding: 500,
+          currentAmountLost: 0,
+          email: '',
+          lostAmountPerUnit: 12.50,
+          photoUrl: '',
+          userName: 'Player B',
+          gameWeekModel: [
+            //* Week 1
+            GameWeekModel(
+                startDate: '27-01-2021',
+                endDate: '02-02-2021',
+                completedWorkoutThisWeek: 3,
+                missedWorkoutThisWeek: 2,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '28-01-2021'),
+                  WorkoutDayModel(dateWorkedOut: '29-01-2021'),
+                  WorkoutDayModel(dateWorkedOut: '30-01-2021'),
+                ]),
+            //* Week 2
+            GameWeekModel(
+                startDate: '03-02-2021',
+                endDate: '09-02-2021',
+                completedWorkoutThisWeek: 1,
+                missedWorkoutThisWeek: 4,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [WorkoutDayModel(dateWorkedOut: '04-02-2021')]),
+            //* Week 3
+            GameWeekModel(
+                startDate: '10-02-2021',
+                endDate: '16-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 5,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 4
+            GameWeekModel(
+                startDate: '17-02-2021',
+                endDate: '23-02-2021',
+                completedWorkoutThisWeek: 2,
+                missedWorkoutThisWeek: 3,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '18-02-2021'),
+                  WorkoutDayModel(dateWorkedOut: '19-02-2021'),
+                ]),
+            //* Week 5
+            GameWeekModel(
+                startDate: '24-02-2021',
+                endDate: '02-03-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 5,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 6
+            GameWeekModel(
+                startDate: '03-03-2021',
+                endDate: '09-03-2021',
+                completedWorkoutThisWeek: 5,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '04-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '05-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '06-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '07-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '08-03-2022'),
+                ]),
+            //* Week 7
+            GameWeekModel(
+                startDate: '10-03-2021',
+                endDate: '16-03-2021',
+                completedWorkoutThisWeek: 2,
+                missedWorkoutThisWeek: 3,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '11-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '12-03-2022'),
+                ]),
+            //* Week 8
+            GameWeekModel(
+                startDate: '17-03-2021',
+                endDate: '23-03-2021',
+                completedWorkoutThisWeek: 4,
+                missedWorkoutThisWeek: 1,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '18-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '19-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '20-03-2022'),
+                  WorkoutDayModel(dateWorkedOut: '21-03-2022'),
+                ]),
+          ],
+        ),
+        //* Player C
+        ParticipantModel(
+          commitmentAmountInChallenge: 32,
+          commitmentAmountPerWeek: 4,
+          currentAmountEarned: 0,
+          currentAmountHolding: 500,
+          currentAmountLost: 0,
+          email: '',
+          lostAmountPerUnit: 125 / 8,
+          photoUrl: '',
+          userName: 'Player C',
+          gameWeekModel: [
+            //* Week 1
+            GameWeekModel(
+                startDate: '27-01-2021',
+                endDate: '02-02-2021',
+                completedWorkoutThisWeek: 4,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '28-01-2021'),
+                  WorkoutDayModel(dateWorkedOut: '29-01-2021'),
+                  WorkoutDayModel(dateWorkedOut: '30-01-2021'),
+                  WorkoutDayModel(dateWorkedOut: '01-02-2021'),
+                ]),
+            //* Week 2
+            GameWeekModel(
+                startDate: '03-02-2021',
+                endDate: '09-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 4,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 3
+            GameWeekModel(
+                startDate: '10-02-2021',
+                endDate: '16-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 4,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 4
+            GameWeekModel(
+                startDate: '17-02-2021',
+                endDate: '23-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 4,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 5
+            GameWeekModel(
+                startDate: '24-02-2021',
+                endDate: '02-03-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 4,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 6
+            GameWeekModel(
+                startDate: '03-03-2021',
+                endDate: '09-03-2021',
+                completedWorkoutThisWeek: 4,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '04-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '05-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '06-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '07-03-2021'),
+                ]),
+            //* Week 7
+            GameWeekModel(
+                startDate: '10-03-2021',
+                endDate: '16-03-2021',
+                completedWorkoutThisWeek: 1,
+                missedWorkoutThisWeek: 3,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [WorkoutDayModel(dateWorkedOut: '11-03-2021')]),
+            //* Week 8
+            GameWeekModel(
+                startDate: '17-03-2021',
+                endDate: '23-03-2021',
+                completedWorkoutThisWeek: 3,
+                missedWorkoutThisWeek: 1,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '19-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '20-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '21-03-2021'),
+                ]),
+          ],
+        ),
+        //* Player D
+        ParticipantModel(
+          commitmentAmountInChallenge: 24,
+          commitmentAmountPerWeek: 3,
+          currentAmountEarned: 0,
+          currentAmountHolding: 500,
+          currentAmountLost: 0,
+          email: '',
+          lostAmountPerUnit: 125 / 6,
+          photoUrl: '',
+          userName: 'Player D',
+          gameWeekModel: [
+            //* Week 1
+            GameWeekModel(
+                startDate: '27-01-2021',
+                endDate: '02-02-2021',
+                completedWorkoutThisWeek: 2,
+                missedWorkoutThisWeek: 1,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '28-01-2021'),
+                  WorkoutDayModel(dateWorkedOut: '29-01-2021'),
+                ]),
+            //* Week 2
+            GameWeekModel(
+                startDate: '03-02-2021',
+                endDate: '09-02-2021',
+                completedWorkoutThisWeek: 3,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '04-02-2021'),
+                  WorkoutDayModel(dateWorkedOut: '05-02-2021'),
+                  WorkoutDayModel(dateWorkedOut: '06-02-2021'),
+                ]),
+            //* Week 3
+            GameWeekModel(
+                startDate: '10-02-2021',
+                endDate: '16-02-2021',
+                completedWorkoutThisWeek: 3,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '11-02-2021'),
+                  WorkoutDayModel(dateWorkedOut: '12-02-2021'),
+                  WorkoutDayModel(dateWorkedOut: '13-02-2021'),
+                ]),
+            //* Week 4
+            GameWeekModel(
+                startDate: '17-02-2021',
+                endDate: '23-02-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 3,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 5
+            GameWeekModel(
+                startDate: '24-02-2021',
+                endDate: '02-03-2021',
+                completedWorkoutThisWeek: 0,
+                missedWorkoutThisWeek: 3,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: []),
+            //* Week 6
+            GameWeekModel(
+                startDate: '03-03-2021',
+                endDate: '09-03-2021',
+                completedWorkoutThisWeek: 3,
+                missedWorkoutThisWeek: 0,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '04-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '05-03-2021'),
+                  WorkoutDayModel(dateWorkedOut: '06-03-2021'),
+                ]),
+            //* Week 7
+            GameWeekModel(
+                startDate: '10-03-2021',
+                endDate: '16-03-2021',
+                completedWorkoutThisWeek: 1,
+                missedWorkoutThisWeek: 2,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [
+                  WorkoutDayModel(dateWorkedOut: '11-03-2022'),
+                ]),
+            //* Week 8
+            GameWeekModel(
+                startDate: '17-03-2021',
+                endDate: '23-03-2021',
+                completedWorkoutThisWeek: 1,
+                missedWorkoutThisWeek: 2,
+                earnedThisweek: 0,
+                lostThisWeek: 0,
+                workoutDays: [WorkoutDayModel(dateWorkedOut: '18-03-2021')]),
+          ],
+        )
+      ],
+      potAmount: 1000,
+      roomLimit: 4,
+      startDate: '27-01-2021',
+      started: true,
+      ctrlEarnings: 0,
+      ended: false,
+    );
+    gameRooms.doc('123456').set(gameRoomModel.toMap());
   }
 }
