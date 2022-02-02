@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'dart:math' as MATH;
+import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ctrl_app/common/colorpalette.dart';
@@ -18,8 +18,8 @@ import 'package:intl/intl.dart';
 
 extension Precision on double {
   double toDoublePrecision(int fractionDigits) {
-    var mod = MATH.pow(10, fractionDigits.toDouble()).toDouble();
-    return ((this * mod).floor().toDouble() / mod);
+    final mod = math.pow(10, fractionDigits.toDouble()).toDouble();
+    return (this * mod).floor().toDouble() / mod;
   }
 }
 
@@ -79,22 +79,23 @@ class GameRoomController extends GetxController {
   }
 
   int getCurrentWeek(GameRoomModel gameRoom, UserModel user) {
-   return gameRoom.participants!
-        .firstWhere((element) => element.email == user.email)
-        .gameWeekModel
-        .indexWhere((element2) =>
-            DateFormat('dd-MM-yyyy')
+    return gameRoom.participants!
+            .firstWhere((element) => element.email == user.email)
+            .gameWeekModel
+            .indexWhere((element2) =>
+                DateFormat('dd-MM-yyyy')
+                        .parse(element2.startDate)
+                        .isBefore(DateTime.now()) &&
+                    DateFormat('dd-MM-yyyy')
+                        .parse(element2.endDate)
+                        .isAfter(DateTime.now()) ||
+                DateFormat('dd-MM-yyyy')
                     .parse(element2.startDate)
-                    .isBefore(DateTime.now()) &&
+                    .isAtSameMomentAs(DateTime.now()) ||
                 DateFormat('dd-MM-yyyy')
                     .parse(element2.endDate)
-                    .isAfter(DateTime.now()) ||
-            DateFormat('dd-MM-yyyy')
-                .parse(element2.startDate)
-                .isAtSameMomentAs(DateTime.now()) ||
-            DateFormat('dd-MM-yyyy')
-                .parse(element2.endDate)
-                .isAtSameMomentAs(DateTime.now())) + 1;
+                    .isAtSameMomentAs(DateTime.now())) +
+        1;
   }
 
   Future<void> getGameRoomsNotStarted() async {
@@ -280,10 +281,15 @@ class GameRoomController extends GetxController {
 
           //* The first distribution model plus error handling check
           if (eligibleParticipant.isEmpty) {
-            gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
-                gameRoom.buyInAmount! /
-                    gameRoom.commitmentPeriod! *
-                    inEligibleParticipant.length;
+            //! Stop gap method
+            if (gameRoom.ended == false) {
+              gameRoom.ctrlEarnings = 0;
+            } else {
+              gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
+                  gameRoom.buyInAmount! /
+                      gameRoom.commitmentPeriod! *
+                      inEligibleParticipant.length;
+            }
             log('There is no eligible participant');
           } else if (eligibleParticipant.length == 1) {
             log('There is only 1 eligible particpant');
@@ -512,13 +518,6 @@ class GameRoomController extends GetxController {
 
           log('You have already worked out today');
         } else if (!workoutCheckInToday(gameWeek.workoutDays)) {
-          ///* Get the index of the game week to check
-          final int gameWeekIndex = gameRoom
-              .participants![participantIndex].gameWeekModel
-              .indexOf(gameWeek);
-          gameWeek.completedWorkoutThisWeek =
-              gameWeek.completedWorkoutThisWeek + 1;
-
           ///* Add check in workout
           gameWeek.workoutDays.add(WorkoutDayModel(
               dateWorkedOut: DateFormat('dd-MM-yyyy').format(DateTime.now())));
@@ -616,7 +615,8 @@ class GameRoomController extends GetxController {
             return;
           } else {
             user.walletAmount = user.walletAmount - gameRoom.buyInAmount!;
-            user.totalAmountInvestedInGame = user.totalAmountInvestedInGame + gameRoom.buyInAmount!;
+            user.totalAmountInvestedInGame =
+                user.totalAmountInvestedInGame + gameRoom.buyInAmount!;
             gameRoom.participants!.add(ParticipantModel(
                 lostAmountPerUnit: gameRoom.buyInAmount! /
                     (playerCommitment * gameRoom.commitmentPeriod!),
@@ -734,7 +734,8 @@ class GameRoomController extends GetxController {
           currentAmountLost: 0,
           email: 'jazsleyzainal.93@gmail.com',
           lostAmountPerUnit: 31.25,
-          photoUrl: 'https://lh3.googleusercontent.com/a-/AOh14Gh8g8G3QnM-6rYrUtWf923PkJKSWQH-4r9WEMO2ZA=s96-c',
+          photoUrl:
+              'https://lh3.googleusercontent.com/a-/AOh14Gh8g8G3QnM-6rYrUtWf923PkJKSWQH-4r9WEMO2ZA=s96-c',
           userName: 'jazsley',
           gameWeekModel: [
             //* Week 1

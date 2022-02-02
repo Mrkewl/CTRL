@@ -1,11 +1,11 @@
-import 'package:ctrl_app/models/participant_model.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
 import 'package:ctrl_app/controller/dashboardcontroller.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
 import 'package:ctrl_app/models/gameroom_model.dart';
+import 'package:ctrl_app/models/participant_model.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class WorkoutHistory extends StatelessWidget {
   WorkoutHistory({
@@ -18,7 +18,7 @@ class WorkoutHistory extends StatelessWidget {
   final GameRoomController gameRoomController = GameRoomController.to;
   final AuthenticationController authenticationController =
       AuthenticationController.to;
-  late List<String> history;
+
 
   @override
   Widget build(BuildContext context) {

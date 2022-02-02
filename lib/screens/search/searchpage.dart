@@ -1,6 +1,5 @@
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
-import 'package:ctrl_app/models/gameroom_model.dart';
 import 'package:ctrl_app/screens/create_room/create_room_screen.dart';
 import 'package:ctrl_app/screens/gameroom/gameroom.dart';
 import 'package:ctrl_app/screens/search/widgets/game_roomwidget.dart';

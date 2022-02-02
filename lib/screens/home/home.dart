@@ -2,7 +2,6 @@ import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/dashboardcontroller.dart';
 import 'package:ctrl_app/screens/dashboard/dashboard.dart';
 import 'package:ctrl_app/screens/participating_gamerooms/participating_gamerooms_screen.dart';
-import 'package:ctrl_app/screens/registration/register_information_page.dart';
 import 'package:ctrl_app/screens/search/searchpage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

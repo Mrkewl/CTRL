@@ -534,13 +534,6 @@ void main() {
       }
     }
 
-    void calculateCTRLearnings(
-        GameRoomModel gameRoom, List<ParticipantModel> ineligibleparticipant) {
-      if (ineligibleparticipant.length == gameRoom.participants!.length) {
-        gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
-            gameRoom.buyInAmount! * ineligibleparticipant.length;
-      }
-    }
 
     await getListEachParticipantAmountLossAtEndWeek();
     await distributeLostAmountToParticipants();

@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/authenticationcontroller.dart';
@@ -6,7 +5,6 @@ import 'package:ctrl_app/screens/edit_profile/edit_profilescreen.dart';
 import 'package:ctrl_app/screens/home/home.dart';
 import 'package:ctrl_app/screens/landing_page/landingpage_screen.dart';
 import 'package:ctrl_app/screens/wallet_settings/wallet_settings.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

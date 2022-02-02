@@ -334,7 +334,6 @@ class AuthenticationController extends GetxController {
         .update(user.value.toMap());
   }
 
-  ///TODO The commitment per week did not get set up
 
   Future<void> changeMissionStatement() async {
     try {
