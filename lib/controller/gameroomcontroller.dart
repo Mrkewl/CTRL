@@ -78,6 +78,25 @@ class GameRoomController extends GetxController {
     }
   }
 
+  int getCurrentWeek(GameRoomModel gameRoom, UserModel user) {
+   return gameRoom.participants!
+        .firstWhere((element) => element.email == user.email)
+        .gameWeekModel
+        .indexWhere((element2) =>
+            DateFormat('dd-MM-yyyy')
+                    .parse(element2.startDate)
+                    .isBefore(DateTime.now()) &&
+                DateFormat('dd-MM-yyyy')
+                    .parse(element2.endDate)
+                    .isAfter(DateTime.now()) ||
+            DateFormat('dd-MM-yyyy')
+                .parse(element2.startDate)
+                .isAtSameMomentAs(DateTime.now()) ||
+            DateFormat('dd-MM-yyyy')
+                .parse(element2.endDate)
+                .isAtSameMomentAs(DateTime.now())) + 1;
+  }
+
   Future<void> getGameRoomsNotStarted() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       if (gameRoom.started == false) {
@@ -597,6 +616,7 @@ class GameRoomController extends GetxController {
             return;
           } else {
             user.walletAmount = user.walletAmount - gameRoom.buyInAmount!;
+            user.totalAmountInvestedInGame = user.totalAmountInvestedInGame + gameRoom.buyInAmount!;
             gameRoom.participants!.add(ParticipantModel(
                 lostAmountPerUnit: gameRoom.buyInAmount! /
                     (playerCommitment * gameRoom.commitmentPeriod!),
@@ -611,6 +631,8 @@ class GameRoomController extends GetxController {
                 photoUrl:
                     user.avatarImage.isEmpty ? user.photoUrl : user.avatarImage,
                 gameWeekModel: createGameWeekModels(gameRoom)));
+            gameRoom.potAmount =
+                gameRoom.buyInAmount! * gameRoom.participants!.length;
             await gameRooms
                 .doc(gameRoom.documentId)
                 .set(gameRoom.toMap(), SetOptions(merge: true));
@@ -710,10 +732,10 @@ class GameRoomController extends GetxController {
           currentAmountEarned: 0,
           currentAmountHolding: 500,
           currentAmountLost: 0,
-          email: '',
+          email: 'jazsleyzainal.93@gmail.com',
           lostAmountPerUnit: 31.25,
-          photoUrl: '',
-          userName: 'Player A',
+          photoUrl: 'https://lh3.googleusercontent.com/a-/AOh14Gh8g8G3QnM-6rYrUtWf923PkJKSWQH-4r9WEMO2ZA=s96-c',
+          userName: 'jazsley',
           gameWeekModel: [
             //* Week 1
             GameWeekModel(
@@ -1111,7 +1133,7 @@ class GameRoomController extends GetxController {
       startDate: '27-01-2021',
       started: true,
       ctrlEarnings: 0,
-      ended: false,
+      ended: true,
     );
     gameRooms.doc('123456').set(gameRoomModel.toMap());
   }

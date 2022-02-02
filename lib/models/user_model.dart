@@ -24,6 +24,8 @@ class UserModel {
   int totalGamesParticipating;
   double totalAmountLost;
   double totalAmountTopUp;
+  double totalAmountInvestedInGame;
+  double netChangeFromGames;
 
 
   double get successRate =>
@@ -49,11 +51,13 @@ class UserModel {
     required this.totalGamesParticipating,
     required this.totalAmountLost,
     required this.totalAmountTopUp,
+    required this.totalAmountInvestedInGame,
+    required this.netChangeFromGames,
   });
 
   @override
   String toString() {
-    return 'UserModel(email: $email, firstName: $firstName, lastName: $lastName, userName: $userName, gender: $gender, dateOfBirth: $dateOfBirth, country: $country, photoUrl: $photoUrl, dateCreated: $dateCreated, registrationInformation: $registrationInformation, missionStatement: $missionStatement, avatarImage: $avatarImage, totalCompletedWorkout: $totalCompletedWorkout, walletAmount: $walletAmount, totalGamesParticipated: $totalGamesParticipated, totalMissedWorkout: $totalMissedWorkout, totalEarnings: $totalEarnings, totalGamesParticipating: $totalGamesParticipating, totalAmountLost: $totalAmountLost, totalAmountTopUp: $totalAmountTopUp)';
+    return 'UserModel(email: $email, firstName: $firstName, lastName: $lastName, userName: $userName, gender: $gender, dateOfBirth: $dateOfBirth, country: $country, photoUrl: $photoUrl, dateCreated: $dateCreated, registrationInformation: $registrationInformation, missionStatement: $missionStatement, avatarImage: $avatarImage, totalCompletedWorkout: $totalCompletedWorkout, walletAmount: $walletAmount, totalGamesParticipated: $totalGamesParticipated, totalMissedWorkout: $totalMissedWorkout, totalEarnings: $totalEarnings, totalGamesParticipating: $totalGamesParticipating, totalAmountLost: $totalAmountLost, totalAmountTopUp: $totalAmountTopUp, totalAmountInvestedInGame: $totalAmountInvestedInGame, netChangeFromGames: $netChangeFromGames)';
   }
 
   UserModel copyWith({
@@ -77,6 +81,8 @@ class UserModel {
     int? totalGamesParticipating,
     double? totalAmountLost,
     double? totalAmountTopUp,
+    double? totalAmountInvestedInGame,
+    double? netChangeFromGames,
   }) {
     return UserModel(
       email: email ?? this.email,
@@ -99,6 +105,8 @@ class UserModel {
       totalGamesParticipating: totalGamesParticipating ?? this.totalGamesParticipating,
       totalAmountLost: totalAmountLost ?? this.totalAmountLost,
       totalAmountTopUp: totalAmountTopUp ?? this.totalAmountTopUp,
+      totalAmountInvestedInGame: totalAmountInvestedInGame ?? this.totalAmountInvestedInGame,
+      netChangeFromGames: netChangeFromGames ?? this.netChangeFromGames,
     );
   }
 
@@ -124,6 +132,8 @@ class UserModel {
       'totalGamesParticipating': totalGamesParticipating,
       'totalAmountLost': totalAmountLost,
       'totalAmountTopUp': totalAmountTopUp,
+      'totalAmountInvestedInGame': totalAmountInvestedInGame,
+      'netChangeFromGames': netChangeFromGames,
     };
   }
 
@@ -141,14 +151,16 @@ class UserModel {
       registrationInformation: map['registrationInformation'] ?? false,
       missionStatement: map['missionStatement'] ?? '',
       avatarImage: map['avatarImage'] ?? '',
-      totalCompletedWorkout: map['totalCompletedWorkout'] ?? 0,
-      walletAmount: map['walletAmount'].toDouble() ?? 0,
-      totalGamesParticipated: map['totalGamesParticipated'] ?? 0,
-      totalMissedWorkout: map['totalMissedWorkout'] ?? 0,
-      totalEarnings: map['totalEarnings'] ?? 0.0,
-      totalGamesParticipating: map['totalGamesParticipating']?? 0,
-      totalAmountLost: map['totalAmountLost'] ?? 0.0,
-      totalAmountTopUp:  map['totalAmountTopUp'] ?? 0.0,
+      totalCompletedWorkout: map['totalCompletedWorkout']?.toInt() ?? 0,
+      walletAmount: map['walletAmount']?.toDouble() ?? 0.0,
+      totalGamesParticipated: map['totalGamesParticipated']?.toInt() ?? 0,
+      totalMissedWorkout: map['totalMissedWorkout']?.toInt() ?? 0,
+      totalEarnings: map['totalEarnings']?.toDouble() ?? 0.0,
+      totalGamesParticipating: map['totalGamesParticipating']?.toInt() ?? 0,
+      totalAmountLost: map['totalAmountLost']?.toDouble() ?? 0.0,
+      totalAmountTopUp: map['totalAmountTopUp']?.toDouble() ?? 0.0,
+      totalAmountInvestedInGame: map['totalAmountInvestedInGame']?.toDouble() ?? 0.0,
+      netChangeFromGames: map['netChangeFromGames']?.toDouble() ?? 0.0,
     );
   }
 
@@ -181,7 +193,9 @@ class UserModel {
       other.totalEarnings == totalEarnings &&
       other.totalGamesParticipating == totalGamesParticipating &&
       other.totalAmountLost == totalAmountLost &&
-      other.totalAmountTopUp == totalAmountTopUp;
+      other.totalAmountTopUp == totalAmountTopUp &&
+      other.totalAmountInvestedInGame == totalAmountInvestedInGame &&
+      other.netChangeFromGames == netChangeFromGames;
   }
 
   @override
@@ -205,6 +219,8 @@ class UserModel {
       totalEarnings.hashCode ^
       totalGamesParticipating.hashCode ^
       totalAmountLost.hashCode ^
-      totalAmountTopUp.hashCode;
+      totalAmountTopUp.hashCode ^
+      totalAmountInvestedInGame.hashCode ^
+      netChangeFromGames.hashCode;
   }
 }

@@ -38,6 +38,8 @@ class AuthenticationController extends GetxController {
 
   RxString avatarImage = ''.obs;
   Rx<UserModel> user = UserModel(
+          netChangeFromGames: 0,
+          totalAmountInvestedInGame: 0,
           totalAmountLost: 0,
           totalAmountTopUp: 0,
           email: '',
@@ -110,8 +112,10 @@ class AuthenticationController extends GetxController {
   }
 
   Future<void> logOut() async {
-   await auth.signOut();
+    await auth.signOut();
     user = UserModel(
+            netChangeFromGames: 0,
+            totalAmountInvestedInGame: 0,
             totalAmountLost: 0,
             totalAmountTopUp: 0,
             email: '',
@@ -143,6 +147,8 @@ class AuthenticationController extends GetxController {
         dateOfBirth.isNotEmpty) {
       try {
         final UserModel registeringUser = UserModel(
+          netChangeFromGames: 0,
+          totalAmountInvestedInGame: 0,
           totalAmountLost: 0,
           totalAmountTopUp: 0,
           avatarImage: avatarImage.value.isEmpty ? '' : avatarImage.value,
@@ -315,8 +321,9 @@ class AuthenticationController extends GetxController {
       user.value.totalGamesParticipated = totalGamesParticipated(gameRooms);
       user.value.totalGamesParticipating = totalGamesParticipating(gameRooms);
       user.value.totalMissedWorkout = totalMissedWorkout(gameRooms);
-      user.value.walletAmount = amountHolding(gameRooms);
       user.value.totalAmountLost = totalAmountLoss(gameRooms);
+      user.value.netChangeFromGames = totalNetChange(gameRooms);
+      user.value.walletAmount = getWalletAmount();
       updateDocument();
     }
   }
@@ -344,8 +351,8 @@ class AuthenticationController extends GetxController {
       log(user.value.walletAmount.toString());
       user.value.totalAmountTopUp = user.value.totalAmountTopUp + topUp;
       user.value.walletAmount = user.value.totalAmountTopUp +
-          user.value.totalEarnings -
-          user.value.totalAmountLost;
+          user.value.netChangeFromGames -
+          user.value.totalAmountInvestedInGame;
       await usersData.doc(FirebaseAuth.instance.currentUser!.email).update({
         'totalAmountTopUp': user.value.totalAmountTopUp,
         'walletAmount': user.value.walletAmount
@@ -406,13 +413,15 @@ class AuthenticationController extends GetxController {
   double totalEarnings(List<GameRoomModel> gameRooms) {
     double totalGamesEarnings = 0;
     for (final GameRoomModel gameRoom in gameRooms) {
-      final ParticipantModel? currentUser = gameRoom.participants!
-          .firstWhereOrNull((element) => element.email == user.value.email);
-      if (currentUser == null) {
-        return 0;
-      } else {
-        for (final GameWeekModel gameWeek in currentUser.gameWeekModel) {
-          totalGamesEarnings = totalGamesEarnings + gameWeek.earnedThisweek;
+      if (gameRoom.ended == true) {
+        final ParticipantModel? currentUser = gameRoom.participants!
+            .firstWhereOrNull((element) => element.email == user.value.email);
+        if (currentUser == null) {
+          return 0;
+        } else {
+          for (final GameWeekModel gameWeek in currentUser.gameWeekModel) {
+            totalGamesEarnings = totalGamesEarnings + gameWeek.earnedThisweek;
+          }
         }
       }
     }
@@ -422,9 +431,11 @@ class AuthenticationController extends GetxController {
   int totalGamesParticipated(List<GameRoomModel> gameRooms) {
     int totalGamesUserParticipated = 0;
     for (final GameRoomModel gameRoom in gameRooms) {
-      for (final ParticipantModel participant in gameRoom.participants!) {
-        if (participant.email == user.value.email) {
-          totalGamesUserParticipated++;
+      if (gameRoom.ended == true) {
+        for (final ParticipantModel participant in gameRoom.participants!) {
+          if (participant.email == user.value.email) {
+            totalGamesUserParticipated++;
+          }
         }
       }
     }
@@ -468,20 +479,37 @@ class AuthenticationController extends GetxController {
     return user.value.walletAmount = user.value.walletAmount - entryFee;
   }
 
-  double amountHolding(List<GameRoomModel> gameRooms) {
-    //TODO When compartment and then deduct
-    return user.value.walletAmount;
+  double getWalletAmount() {
+    return user.value.totalAmountTopUp +
+        user.value.netChangeFromGames -
+        user.value.totalAmountInvestedInGame;
+  }
+
+  double totalNetChange(List<GameRoomModel> gameRooms) {
+    double totalNetChange = 0;
+    for (final GameRoomModel gameRoom in gameRooms) {
+      if (gameRoom.ended == true) {
+        final ParticipantModel? currentUser = gameRoom.participants!
+            .firstWhereOrNull((element) => element.email == user.value.email);
+        if (currentUser != null) {
+          totalNetChange = totalNetChange + currentUser.currentAmountHolding!;
+        } else {}
+      }
+    }
+    return totalNetChange;
   }
 
   double totalAmountLoss(List<GameRoomModel> gameRooms) {
     double totalAmountLoss = 0;
     for (final GameRoomModel gameRoom in gameRooms) {
-      final ParticipantModel? currentUser = gameRoom.participants!
-          .firstWhereOrNull((element) => element.email == user.value.email);
-      if (currentUser == null) {
-        return 0;
-      } else {
-        totalAmountLoss = totalAmountLoss + currentUser.currentAmountLost!;
+      if (gameRoom.ended == true) {
+        final ParticipantModel? currentUser = gameRoom.participants!
+            .firstWhereOrNull((element) => element.email == user.value.email);
+        if (currentUser == null) {
+          // return 0;
+        } else {
+          totalAmountLoss = totalAmountLoss + currentUser.currentAmountLost!;
+        }
       }
     }
     return totalAmountLoss;

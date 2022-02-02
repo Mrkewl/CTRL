@@ -4,7 +4,6 @@ DONE
 2. Architecture is not properly done, probably pass the user into the model early on and also passing variable either during constructor or all in the widget itself
 on it
 
-3. game updating every week loss<can use a stop gap with date time now>
 
 
 
@@ -33,11 +32,9 @@ and loading
 
 
 
-20. Update state after joinin
-21. add dialog that they have already joined
 
+3. game updating every week loss<can use a stop gap with date time now>
 
-22. When user participate in game, it should be added to the participating game list
 
 
 
@@ -47,12 +44,17 @@ and loading
 DONE TASK
 1.profile picture not showing up properly, i think the defult url is overwritting it
 - no, its not overwritting but it did not update document 
+21. add dialog that they have already joined
+Done
+
 
 16. loading button
 Done
 8. log out - done
 DONE
 
+22. When user participate in game, it should be added to the participating game list
+Done
 14. make if else for loading games, and load games after sign up. done
 DONE
 
@@ -78,3 +80,5 @@ Done
 Done
 4. put another if else on distribution method so that if user with 0 workout they 
 do not get part of the distribution
+20. Update state after joinin
+Done

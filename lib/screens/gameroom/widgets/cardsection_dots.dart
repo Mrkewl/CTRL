@@ -28,6 +28,16 @@ class CardSectionDots extends StatelessWidget {
       return color;
     }
 
+    Color dotcolour3(int selectedDotColor) {
+      Color color;
+      if (selectedDotColor == 2) {
+        color = ColorPalette.brightGreen;
+      } else {
+        color = Colors.grey;
+      }
+      return color;
+    }
+
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -49,6 +59,16 @@ class CardSectionDots extends StatelessWidget {
             width: dotNumber == 1? 30: 10,
             decoration: BoxDecoration(
                 color: dotcolour2(dotNumber!),
+                borderRadius: BorderRadius.circular(360)),
+          ),
+        ),
+                Padding(
+          padding: const EdgeInsets.all(8),
+          child: Container(
+            height: 10,
+            width: dotNumber == 2? 30: 10,
+            decoration: BoxDecoration(
+                color: dotcolour3(dotNumber!),
                 borderRadius: BorderRadius.circular(360)),
           ),
         ),

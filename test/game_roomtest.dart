@@ -43,7 +43,7 @@ void main() {
                 lostThisWeek: 0,
                 workoutDays: [
                   WorkoutDayModel(dateWorkedOut: '28-01-2022'),
-                  WorkoutDayModel(dateWorkedOut: '29-01-2022')
+                  WorkoutDayModel(dateWorkedOut: '29-01-2022'),
                 ]),
             //* Week 2
             GameWeekModel(
