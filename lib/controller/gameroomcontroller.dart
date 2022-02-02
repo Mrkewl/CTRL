@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:intl/intl.dart';
+
 extension Precision on double {
   double toDoublePrecision(int fractionDigits) {
     var mod = MATH.pow(10, fractionDigits.toDouble()).toDouble();
@@ -29,6 +30,8 @@ class GameRoomController extends GetxController {
   final Rx<CreateGame> createGame = CreateGame().obs;
   final AuthenticationController authenticationController =
       AuthenticationController.to;
+  RxList<GameRoomModel> gameRoomNotStarted = <GameRoomModel>[].obs;
+
   final RxString currentGameRoomId = ''.obs;
   final RxList<GameRoomModel> participatingGameRoomList = <GameRoomModel>[].obs;
   CollectionReference gameRooms =
@@ -41,6 +44,8 @@ class GameRoomController extends GetxController {
     await getAllGameRoom();
     //* get rooms that participant/user is in
     await getParticipatingGameRooms(user);
+    //* get rooms that not Started
+    await getGameRoomsNotStarted();
     //* Trigger start game - Checked
     await triggerStartGame();
     //* Trigger end game - Checked
@@ -70,6 +75,14 @@ class GameRoomController extends GetxController {
           });
     } catch (e) {
       log(e.toString());
+    }
+  }
+
+  Future<void> getGameRoomsNotStarted() async {
+    for (final GameRoomModel gameRoom in gameRoomList) {
+      if (gameRoom.started == false) {
+        gameRoomNotStarted.add(gameRoom);
+      }
     }
   }
 
@@ -192,18 +205,14 @@ class GameRoomController extends GetxController {
     }
   }
 
-
-
-  
-
   Future<void> getCurrentAmountHolding() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
       for (final ParticipantModel participant in gameRoom.participants!) {
         participant.currentAmountHolding = gameRoom.buyInAmount;
         participant.currentAmountHolding = (participant.currentAmountHolding! +
-            participant.currentAmountEarned! -
-            participant.currentAmountLost!).toDoublePrecision(2);
-         
+                participant.currentAmountEarned! -
+                participant.currentAmountLost!)
+            .toDoublePrecision(2);
       }
     }
   }
@@ -230,68 +239,74 @@ class GameRoomController extends GetxController {
 
   Future<void> distributeLostAmountToParticipants() async {
     for (final GameRoomModel gameRoom in gameRoomList) {
+      //! ctrl earnings descripencies
       //*Clear all descripencies
       gameRoom.ctrlEarnings = 0;
       clearEarnedAmount(gameRoom);
-      for (int week = 0; week < gameRoom.commitmentPeriod!; week++) {
-        final List<ParticipantModel> eligibleParticipant = gameRoom
-            .participants!
-            .where(
-                (element) => element.gameWeekModel[week].workoutDays.isNotEmpty)
-            .toList();
-        log('week: $week');
-        log('Eligible participant$eligibleParticipant');
-        final List<ParticipantModel> inEligibleParticipant = gameRoom
-            .participants!
-            .where((element) => element.gameWeekModel[week].workoutDays.isEmpty)
-            .toList();
-        log('inEligibleParticipant participant$inEligibleParticipant');
+      if (gameRoom.started == true) {
+        for (int week = 0; week < gameRoom.commitmentPeriod!; week++) {
+          final List<ParticipantModel> eligibleParticipant = gameRoom
+              .participants!
+              .where((element) =>
+                  element.gameWeekModel[week].workoutDays.isNotEmpty)
+              .toList();
+          log('week: $week');
+          log('Eligible participant$eligibleParticipant');
+          final List<ParticipantModel> inEligibleParticipant = gameRoom
+              .participants!
+              .where(
+                  (element) => element.gameWeekModel[week].workoutDays.isEmpty)
+              .toList();
+          log('inEligibleParticipant participant$inEligibleParticipant');
 
-        //* The first distribution model plus error handling check
-        if (eligibleParticipant.isEmpty) {
-          gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
-              gameRoom.buyInAmount! /
-                  gameRoom.commitmentPeriod! *
-                  inEligibleParticipant.length;
-          log('There is no eligible participant');
-        } else if (eligibleParticipant.length == 1) {
-          log('There is only 1 eligible particpant');
-          gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
-              eligibleParticipant.first.gameWeekModel[week].lostThisWeek;
-          eligibleParticipant.first.gameWeekModel[week].earnedThisweek =
-              gameRoom.buyInAmount! /
-                  gameRoom.commitmentPeriod! *
-                  inEligibleParticipant.length;
-        } else if (eligibleParticipant.length > 1) {
-          //* distribute with distribution method 1st step
-          for (final ParticipantModel participant1 in eligibleParticipant) {
-            for (final ParticipantModel participant2 in eligibleParticipant) {
-              if (participant1 != participant2) {
-                log(participant2.email);
-                final double formulationOfDistribution = participant1
-                        .gameWeekModel[week].lostThisWeek *
-                    participant2.commitmentAmountPerWeek /
-                    (calculateAllEligibleParticipantUnits(eligibleParticipant) -
-                        participant1.commitmentAmountPerWeek);
-                log('earned' + 'week:' + week.toString());
-                log(formulationOfDistribution.toString());
-                participant2.gameWeekModel[week].earnedThisweek =
-                    participant2.gameWeekModel[week].earnedThisweek +
-                        formulationOfDistribution;
-              }
-            }
-          }
-          //* 2nd step distribute all not eligible into this
-          for (final ParticipantModel participant in eligibleParticipant) {
-            participant.gameWeekModel[week].earnedThisweek = participant
-                    .gameWeekModel[week].earnedThisweek +
+          //* The first distribution model plus error handling check
+          if (eligibleParticipant.isEmpty) {
+            gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
                 gameRoom.buyInAmount! /
                     gameRoom.commitmentPeriod! *
-                    inEligibleParticipant.length /
-                    calculateAllEligibleParticipantUnits(eligibleParticipant) *
-                    participant.commitmentAmountPerWeek;
+                    inEligibleParticipant.length;
+            log('There is no eligible participant');
+          } else if (eligibleParticipant.length == 1) {
+            log('There is only 1 eligible particpant');
+            gameRoom.ctrlEarnings = gameRoom.ctrlEarnings! +
+                eligibleParticipant.first.gameWeekModel[week].lostThisWeek;
+            eligibleParticipant.first.gameWeekModel[week].earnedThisweek =
+                gameRoom.buyInAmount! /
+                    gameRoom.commitmentPeriod! *
+                    inEligibleParticipant.length;
+          } else if (eligibleParticipant.length > 1) {
+            //* distribute with distribution method 1st step
+            for (final ParticipantModel participant1 in eligibleParticipant) {
+              for (final ParticipantModel participant2 in eligibleParticipant) {
+                if (participant1 != participant2) {
+                  log(participant2.email);
+                  final double formulationOfDistribution =
+                      participant1.gameWeekModel[week].lostThisWeek *
+                          participant2.commitmentAmountPerWeek /
+                          (calculateAllEligibleParticipantUnits(
+                                  eligibleParticipant) -
+                              participant1.commitmentAmountPerWeek);
+                  log('earned' + 'week:' + week.toString());
+                  log(formulationOfDistribution.toString());
+                  participant2.gameWeekModel[week].earnedThisweek =
+                      participant2.gameWeekModel[week].earnedThisweek +
+                          formulationOfDistribution;
+                }
+              }
+            }
+            //* 2nd step distribute all not eligible into this
+            for (final ParticipantModel participant in eligibleParticipant) {
+              participant.gameWeekModel[week].earnedThisweek =
+                  participant.gameWeekModel[week].earnedThisweek +
+                      gameRoom.buyInAmount! /
+                          gameRoom.commitmentPeriod! *
+                          inEligibleParticipant.length /
+                          calculateAllEligibleParticipantUnits(
+                              eligibleParticipant) *
+                          participant.commitmentAmountPerWeek;
+            }
+            //* All ineligible participant 0
           }
-          //* All ineligible participant 0
         }
       }
     }
@@ -599,8 +614,10 @@ class GameRoomController extends GetxController {
             await gameRooms
                 .doc(gameRoom.documentId)
                 .set(gameRoom.toMap(), SetOptions(merge: true));
+            participatingGameRoomList.add(gameRoom);
             authenticationController.updateDocument();
             gameRoomList.refresh();
+            // participatingGameRoomList.refresh();
           }
         }
       } else {

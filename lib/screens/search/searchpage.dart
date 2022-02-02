@@ -1,5 +1,6 @@
 import 'package:ctrl_app/common/colorpalette.dart';
 import 'package:ctrl_app/controller/gameroomcontroller.dart';
+import 'package:ctrl_app/models/gameroom_model.dart';
 import 'package:ctrl_app/screens/create_room/create_room_screen.dart';
 import 'package:ctrl_app/screens/gameroom/gameroom.dart';
 import 'package:ctrl_app/screens/search/widgets/game_roomwidget.dart';
@@ -47,37 +48,38 @@ class SearchPage extends StatelessWidget {
                   //         )),
                   //  GameRoomWidget(),
                   Obx(() => ListView.builder(
-                      physics:const NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: gameRoomController.gameRoomList.length,
+                      itemCount: gameRoomController.gameRoomNotStarted.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
-                          onTap: (){
-                            Get.to(
-                              GameRoom(
-                                gameRoom: gameRoomController.gameRoomList[index],
-                              )
-                            );
+                          onTap: () {
+                            Get.to(GameRoom(
+                              gameRoom:
+                                  gameRoomController.gameRoomNotStarted[index],
+                            ));
                           },
                           child: GameRoomWidget(
-                              id: gameRoomController.gameRoomList[index].id!,
-                              name: gameRoomController.gameRoomList[index].name!,
+                              id: gameRoomController
+                                  .gameRoomNotStarted[index].id!,
+                              name: gameRoomController
+                                  .gameRoomNotStarted[index].name!,
                               gameCreatorEmail: gameRoomController
-                                  .gameRoomList[index].gameCreatorEmail!,
+                                  .gameRoomNotStarted[index].gameCreatorEmail!,
                               commitmentPeriod: gameRoomController
-                                  .gameRoomList[index].commitmentPeriod!,
+                                  .gameRoomNotStarted[index].commitmentPeriod!,
                               participants: gameRoomController
-                                  .gameRoomList[index].participants!,
+                                  .gameRoomNotStarted[index].participants!,
                               potAmount: gameRoomController
-                                  .gameRoomList[index].potAmount!,
+                                  .gameRoomNotStarted[index].potAmount!,
                               buyInAmount: gameRoomController
-                                  .gameRoomList[index].buyInAmount!,
-                              started:
-                                  gameRoomController.gameRoomList[index].started!,
+                                  .gameRoomNotStarted[index].buyInAmount!,
+                              started: gameRoomController
+                                  .gameRoomNotStarted[index].started!,
                               startDate: gameRoomController
-                                  .gameRoomList[index].startDate!,
+                                  .gameRoomNotStarted[index].startDate!,
                               endDate: gameRoomController
-                                  .gameRoomList[index].endDate!),
+                                  .gameRoomNotStarted[index].endDate!),
                         );
                       })),
                   // const GameRoomWidget(),

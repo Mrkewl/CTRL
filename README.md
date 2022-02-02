@@ -37,7 +37,7 @@ and loading
 21. add dialog that they have already joined
 
 
-
+22. When user participate in game, it should be added to the participating game list
 
 
 
